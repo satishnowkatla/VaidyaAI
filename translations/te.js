@@ -1,0 +1,18 @@
+export default {
+  appName: "వైద్య AI",
+  tagline: "ఏ మందైనా వెంటనే స్కాన్ చేయండి",
+  login: "లాగిన్",
+  register: "నమోదు చేయండి",
+  email: "ఇమెయిల్",
+  password: "పాస్వర్డ్",
+  scan: "మందు స్కాన్ చేయండి",
+  scanNow: "స్కాన్ చేయండి",
+  library: "మందుల పుస్తకం",
+  stores: "దగ్గరలో దుకాణాలు",
+  settings: "సెట్టింగ్స్",
+  home: "హోమ్",
+  history: "చరిత్ర",
+  recentScans: "తాజా స్కాన్‌లు",
+  seeAll: "అన్నీ చూడండి",
+  safe: "సురక్షితం ✓",
+};

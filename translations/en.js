@@ -1,0 +1,18 @@
+export default {
+  appName: "VaidyaAI",
+  tagline: "Scan any medicine instantly",
+  login: "Login",
+  register: "Register here",
+  email: "Email",
+  password: "Password",
+  scan: "Scan Medicine",
+  scanNow: "Scan Now",
+  library: "Medicine Library",
+  stores: "Nearby Stores",
+  settings: "Settings",
+  home: "Home",
+  history: "History",
+  recentScans: "Recent Scans",
+  seeAll: "See all",
+  safe: "Safe ✓",
+};
