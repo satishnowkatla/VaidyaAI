@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -8,32 +9,103 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useLanguage } from "../services/LanguageContext";
+import Colors from "../constants/colors";
+import { APP_CONFIG } from "../constants/config";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function SettingsScreen({ navigation }) {
-  const { t, lang, toggleLanguage } = useLanguage();
+  const { lang, toggleLanguage } = useLanguage();
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
   const isTE = lang === "te";
 
+  const handleEditProfile = () => {
+    Alert.alert(
+      isTE ? "ప్రొఫైల్ సవరణ" : "Edit Profile",
+      isTE
+        ? "ప్రొఫైల్ సవరణ త్వరలో అందుబాటులో ఉంటుంది"
+        : "Profile editing coming soon!",
+      [{ text: "OK" }],
+    );
+  };
+
+  const handleScanHistory = () => {
+    navigation.navigate("ScanHistory");
+  };
+
+  const handleAbout = () => {
+    Alert.alert(
+      `About ${APP_CONFIG.name}`,
+      `${APP_CONFIG.name} - ${APP_CONFIG.description}\nVersion ${APP_CONFIG.version}\n\nIdentify medicines instantly by scanning medicine strips with your camera.\n\nMade with ❤️ in ${APP_CONFIG.madeIn}`,
+      [{ text: "OK" }],
+    );
+  };
+
+  const handlePrivacyPolicy = () => {
+    Alert.alert(
+      isTE ? "గోప్యతా విధానం" : "Privacy Policy",
+      `${APP_CONFIG.name} Privacy Policy\n\n` +
+        "1. We do not collect personal data.\n\n" +
+        "2. Camera images are processed locally and sent only to OCR API for text extraction.\n\n" +
+        "3. No images are stored on our servers.\n\n" +
+        "4. Location data is used only to find nearby stores and is not stored.\n\n" +
+        `5. For questions, contact: ${APP_CONFIG.supportEmail}`,
+      [{ text: "OK" }],
+    );
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      isTE ? "లాగ్అవుట్" : "Logout",
+      isTE
+        ? "మీరు నిజంగా లాగ్అవుట్ చేయాలనుకుంటున్నారా?"
+        : "Are you sure you want to logout?",
+      [
+        { text: isTE ? "రద్దు" : "Cancel", style: "cancel" },
+        {
+          text: isTE ? "లాగ్అవుట్" : "Logout",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert(
+              isTE ? "లాగ్అవుట్ అయింది" : "Logged Out",
+              isTE
+                ? "మీరు విజయవంతంగా లాగ్అవుట్ అయ్యారు"
+                : "You have been logged out successfully.",
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const handleDarkMode = (value) => {
+    setDarkMode(value);
+    if (value) {
+      Alert.alert(
+        "Dark Mode",
+        "Dark mode will be available in the next update!",
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1565C0" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
 
       {/* PROFILE HERO */}
       <View style={styles.profileHero}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>RK</Text>
+          <Text style={styles.avatarText}>VA</Text>
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>Ravi Kumar</Text>
-          <Text style={styles.profileEmail}>ravi.kumar@gmail.com</Text>
+          <Text style={styles.profileName}>{APP_CONFIG.name} User</Text>
+          <Text style={styles.profileEmail}>user@vaidyaai.app</Text>
           <Text style={styles.profileLocation}>
             📍 Vijayawada, Andhra Pradesh
           </Text>
         </View>
-        <TouchableOpacity style={styles.editBtn}>
+        <TouchableOpacity style={styles.editBtn} onPress={handleEditProfile}>
           <Text style={styles.editBtnText}>{isTE ? "మార్చు" : "Edit"}</Text>
         </TouchableOpacity>
       </View>
@@ -49,7 +121,7 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles.group}>
           {/* LANGUAGE */}
           <View style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: "#E8F0FE" }]}>
+            <View style={[styles.settingIcon, { backgroundColor: Colors.primaryBg }]}>
               <Text style={styles.settingEmoji}>🌐</Text>
             </View>
             <View style={styles.settingInfo}>
@@ -88,7 +160,7 @@ export default function SettingsScreen({ navigation }) {
 
           {/* NOTIFICATIONS */}
           <View style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: "#E8F5E9" }]}>
+            <View style={[styles.settingIcon, { backgroundColor: Colors.tagGreenBg }]}>
               <Text style={styles.settingEmoji}>🔔</Text>
             </View>
             <View style={styles.settingInfo}>
@@ -102,8 +174,8 @@ export default function SettingsScreen({ navigation }) {
             <Switch
               value={notifications}
               onValueChange={setNotifications}
-              trackColor={{ false: "#E8EDF5", true: "#BBDEFB" }}
-              thumbColor={notifications ? "#1565C0" : "#9AA5B4"}
+              trackColor={{ false: Colors.switchTrackOff, true: Colors.switchTrackOn }}
+              thumbColor={notifications ? Colors.switchThumbOn : Colors.switchThumbOff}
             />
           </View>
 
@@ -111,7 +183,7 @@ export default function SettingsScreen({ navigation }) {
 
           {/* DARK MODE */}
           <View style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: "#FFF3E0" }]}>
+            <View style={[styles.settingIcon, { backgroundColor: Colors.tagOrangeBg }]}>
               <Text style={styles.settingEmoji}>🌙</Text>
             </View>
             <View style={styles.settingInfo}>
@@ -119,14 +191,20 @@ export default function SettingsScreen({ navigation }) {
                 {isTE ? "థీమ్" : "Dark Mode"}
               </Text>
               <Text style={styles.settingDesc}>
-                {isTE ? "డార్క్ మోడ్" : "Light mode"}
+                {darkMode
+                  ? isTE
+                    ? "డార్క్ మోడ్ ఆన్"
+                    : "Dark mode on"
+                  : isTE
+                    ? "లైట్ మోడ్"
+                    : "Light mode"}
               </Text>
             </View>
             <Switch
               value={darkMode}
-              onValueChange={setDarkMode}
-              trackColor={{ false: "#E8EDF5", true: "#BBDEFB" }}
-              thumbColor={darkMode ? "#1565C0" : "#9AA5B4"}
+              onValueChange={handleDarkMode}
+              trackColor={{ false: Colors.switchTrackOff, true: Colors.switchTrackOn }}
+              thumbColor={darkMode ? Colors.switchThumbOn : Colors.switchThumbOff}
             />
           </View>
         </View>
@@ -138,9 +216,9 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles.group}>
           <TouchableOpacity
             style={styles.settingRow}
-            onPress={() => navigation.navigate("Result")}
+            onPress={handleScanHistory}
           >
-            <View style={[styles.settingIcon, { backgroundColor: "#E8F0FE" }]}>
+            <View style={[styles.settingIcon, { backgroundColor: Colors.primaryBg }]}>
               <Text style={styles.settingEmoji}>📋</Text>
             </View>
             <View style={styles.settingInfo}>
@@ -156,23 +234,26 @@ export default function SettingsScreen({ navigation }) {
 
           <View style={styles.divider} />
 
-          <TouchableOpacity style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: "#FFF3E0" }]}>
+          <TouchableOpacity style={styles.settingRow} onPress={handleAbout}>
+            <View style={[styles.settingIcon, { backgroundColor: Colors.tagOrangeBg }]}>
               <Text style={styles.settingEmoji}>ℹ️</Text>
             </View>
             <View style={styles.settingInfo}>
               <Text style={styles.settingTitle}>
-                {isTE ? "VaidyaAI గురించి" : "About VaidyaAI"}
+                {isTE ? `${APP_CONFIG.name} గురించి` : `About ${APP_CONFIG.name}`}
               </Text>
-              <Text style={styles.settingDesc}>Version 1.0.0</Text>
+              <Text style={styles.settingDesc}>Version {APP_CONFIG.version}</Text>
             </View>
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
 
           <View style={styles.divider} />
 
-          <TouchableOpacity style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: "#E8F0FE" }]}>
+          <TouchableOpacity
+            style={styles.settingRow}
+            onPress={handlePrivacyPolicy}
+          >
+            <View style={[styles.settingIcon, { backgroundColor: Colors.primaryBg }]}>
               <Text style={styles.settingEmoji}>🔒</Text>
             </View>
             <View style={styles.settingInfo}>
@@ -188,7 +269,7 @@ export default function SettingsScreen({ navigation }) {
         </View>
 
         {/* LOGOUT BUTTON */}
-        <TouchableOpacity style={styles.logoutBtn}>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>
             🚪 {isTE ? "లాగ్అవుట్" : "Logout"}
           </Text>
@@ -196,7 +277,7 @@ export default function SettingsScreen({ navigation }) {
 
         {/* APP VERSION */}
         <Text style={styles.versionText}>
-          VaidyaAI v1.0.0 · Made in India 🇮🇳
+          {APP_CONFIG.name} v{APP_CONFIG.version} · Made in {APP_CONFIG.madeIn} 🇮🇳
         </Text>
       </ScrollView>
     </View>
@@ -204,9 +285,9 @@ export default function SettingsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F7FC" },
+  container: { flex: 1, backgroundColor: Colors.background },
   profileHero: {
-    backgroundColor: "#1565C0",
+    backgroundColor: Colors.primary,
     paddingTop: 54,
     paddingBottom: 24,
     paddingHorizontal: 20,
@@ -218,33 +299,37 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: Colors.whiteTransparent,
     borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: Colors.whiteGhost,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontSize: 20, fontWeight: "800", color: "#fff" },
+  avatarText: { fontSize: 20, fontWeight: "800", color: Colors.white },
   profileInfo: { flex: 1 },
-  profileName: { fontSize: 16, fontWeight: "800", color: "#fff" },
-  profileEmail: { fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 },
+  profileName: { fontSize: 16, fontWeight: "800", color: Colors.white },
+  profileEmail: {
+    fontSize: 11,
+    color: Colors.whiteMuted,
+    marginTop: 2,
+  },
   profileLocation: {
     fontSize: 10,
-    color: "rgba(255,255,255,0.5)",
+    color: Colors.whiteFaint,
     marginTop: 2,
   },
   editBtn: {
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: Colors.whiteBtnBg,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 7,
   },
-  editBtnText: { fontSize: 12, fontWeight: "700", color: "#fff" },
+  editBtnText: { fontSize: 12, fontWeight: "700", color: Colors.white },
   scrollContent: { padding: 14, paddingBottom: 100 },
   groupLabel: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#9AA5B4",
+    color: Colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 8,
@@ -252,12 +337,12 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
   },
   group: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     borderRadius: 17,
     overflow: "hidden",
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
   },
   settingRow: {
     flexDirection: "row",
@@ -275,35 +360,35 @@ const styles = StyleSheet.create({
   },
   settingEmoji: { fontSize: 18 },
   settingInfo: { flex: 1 },
-  settingTitle: { fontSize: 13, fontWeight: "700", color: "#0D1B2A" },
-  settingDesc: { fontSize: 10, color: "#9AA5B4", marginTop: 2 },
-  divider: { height: 1, backgroundColor: "#E8EDF5", marginLeft: 60 },
+  settingTitle: { fontSize: 13, fontWeight: "700", color: Colors.textDark },
+  settingDesc: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
+  divider: { height: 1, backgroundColor: Colors.border, marginLeft: 60 },
   langToggle: {
     flexDirection: "row",
-    backgroundColor: "#F4F7FC",
+    backgroundColor: Colors.background,
     borderRadius: 20,
     padding: 3,
     gap: 2,
     borderWidth: 1.5,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
   },
   langOpt: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 },
-  langOptActive: { backgroundColor: "#1565C0" },
-  langOptText: { fontSize: 11, fontWeight: "800", color: "#9AA5B4" },
-  langOptTextActive: { color: "#fff" },
-  chevron: { fontSize: 20, color: "#9AA5B4" },
+  langOptActive: { backgroundColor: Colors.primary },
+  langOptText: { fontSize: 11, fontWeight: "800", color: Colors.textMuted },
+  langOptTextActive: { color: Colors.white },
+  chevron: { fontSize: 20, color: Colors.textMuted },
   logoutBtn: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: Colors.tagRedBg,
     borderRadius: 15,
     padding: 14,
     alignItems: "center",
     marginTop: 4,
   },
-  logoutText: { fontSize: 14, fontWeight: "800", color: "#C62828" },
+  logoutText: { fontSize: 14, fontWeight: "800", color: Colors.tagRedText },
   versionText: {
     textAlign: "center",
     fontSize: 11,
-    color: "#9AA5B4",
+    color: Colors.textMuted,
     marginTop: 16,
   },
 });

@@ -2,13 +2,15 @@ import React from "react";
 import {
   Platform,
   ScrollView,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useLanguage } from "../services/LanguageContext";
+import Colors from "../constants/colors";
+import { useLanguage } from "../context/LanguageContext";
 
 const teluguTranslations = {
   uses: "ఉపయోగాలు",
@@ -25,7 +27,7 @@ const teluguTranslations = {
 };
 
 export default function ResultScreen({ navigation, route }) {
-  const { t, lang } = useLanguage();
+  const { lang } = useLanguage();
   const isTE = lang === "te";
 
   const medicine = route?.params?.medicine || {
@@ -35,6 +37,16 @@ export default function ResultScreen({ navigation, route }) {
     sideEffects: "Nausea, Stomach upset, Allergic reactions in rare cases.",
     warnings: "Keep out of reach of children. Store in cool dry place.",
     category: "Analgesic",
+  };
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Medicine: ${medicine.name}\nCategory: ${medicine.category}\nUses: ${medicine.uses}\nDosage: ${medicine.dosage}\nSide Effects: ${medicine.sideEffects}\nWarnings: ${medicine.warnings}\n\nShared from VaidyaAI`,
+      });
+    } catch (_error) {
+      // share cancelled
+    }
   };
 
   return (
@@ -52,7 +64,7 @@ export default function ResultScreen({ navigation, route }) {
             {isTE ? teluguTranslations.details : "Medicine Details"}
           </Text>
         </View>
-        <TouchableOpacity style={styles.shareBtn}>
+        <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
           <Text style={styles.shareIcon}>↗</Text>
         </TouchableOpacity>
       </View>
@@ -118,9 +130,7 @@ export default function ResultScreen({ navigation, route }) {
             <Text style={styles.warnIcon}>⚠️</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.warnText}>
-                {isTE
-                  ? teluguTranslations.noAlcohol
-                  : "Do not take with alcohol"}
+                {isTE ? teluguTranslations.warnings : "Warnings"}
               </Text>
               <Text style={styles.warnSub}>{medicine.warnings}</Text>
             </View>
@@ -132,8 +142,8 @@ export default function ResultScreen({ navigation, route }) {
             <View style={{ flex: 1 }}>
               <Text style={styles.dangerText}>
                 {isTE
-                  ? teluguTranslations.liver
-                  : "Avoid if you have liver problems"}
+                  ? "ఇది వైద్య సలహాకు ప్రత్యామ్నాయం కాదు"
+                  : "Not a substitute for professional medical advice"}
               </Text>
             </View>
           </View>
@@ -172,94 +182,94 @@ export default function ResultScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F7FC",
+    backgroundColor: Colors.background,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 44,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#E8EDF5",
+    borderBottomColor: Colors.border,
     gap: 10,
   },
   backBtn: {
     width: 34,
     height: 34,
     borderRadius: 11,
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     alignItems: "center",
     justifyContent: "center",
   },
-  backIcon: { fontSize: 18, color: "#1565C0", fontWeight: "700" },
+  backIcon: { fontSize: 18, color: Colors.primary, fontWeight: "700" },
   headerTitle: { flex: 1 },
-  headerText: { fontSize: 15, fontWeight: "800", color: "#0D1B2A" },
+  headerText: { fontSize: 15, fontWeight: "800", color: Colors.textDark },
   shareBtn: {
     width: 34,
     height: 34,
     borderRadius: 11,
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     alignItems: "center",
     justifyContent: "center",
   },
-  shareIcon: { fontSize: 16, color: "#1565C0", fontWeight: "700" },
+  shareIcon: { fontSize: 16, color: Colors.primary, fontWeight: "700" },
   pad: { padding: 14 },
   topCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     borderRadius: 20,
     padding: 14,
     flexDirection: "row",
     gap: 12,
     borderWidth: 1,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
   },
   medIcon: {
     width: 54,
     height: 54,
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   medInfo: { flex: 1 },
-  medName: { fontSize: 16, fontWeight: "800", color: "#0D1B2A" },
-  medSub: { fontSize: 12, color: "#4A5568", marginTop: 2 },
+  medName: { fontSize: 16, fontWeight: "800", color: Colors.textDark },
+  medSub: { fontSize: 12, color: Colors.textMedium, marginTop: 2 },
   tagRow: { flexDirection: "row", gap: 6, marginTop: 7, flexWrap: "wrap" },
   tagGreen: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: Colors.tagGreenBg,
     borderRadius: 8,
     paddingHorizontal: 9,
     paddingVertical: 3,
   },
-  tagGreenText: { fontSize: 10, fontWeight: "700", color: "#2E7D32" },
+  tagGreenText: { fontSize: 10, fontWeight: "700", color: Colors.tagGreenText },
   tagBlue: {
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     borderRadius: 8,
     paddingHorizontal: 9,
     paddingVertical: 3,
   },
-  tagBlueText: { fontSize: 10, fontWeight: "700", color: "#1565C0" },
+  tagBlueText: { fontSize: 10, fontWeight: "700", color: Colors.primary },
   infoGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 10 },
   infoCard: {
     width: "48%",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 11,
     borderWidth: 1,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
   },
-  infoLabel: { fontSize: 10, color: "#9AA5B4", fontWeight: "600" },
+  infoLabel: { fontSize: 10, color: Colors.textMuted, fontWeight: "600" },
   infoVal: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#0D1B2A",
+    color: Colors.textDark,
     marginTop: 3,
     lineHeight: 18,
   },
   warnBox: {
-    backgroundColor: "#FFF3E0",
+    backgroundColor: Colors.tagOrangeBg,
     borderRadius: 14,
     padding: 12,
     marginTop: 10,
@@ -267,13 +277,13 @@ const styles = StyleSheet.create({
     gap: 9,
     alignItems: "flex-start",
     borderLeftWidth: 3,
-    borderLeftColor: "#E65100",
+    borderLeftColor: Colors.tagOrangeText,
   },
   warnIcon: { fontSize: 16 },
-  warnText: { fontSize: 12, fontWeight: "700", color: "#E65100" },
-  warnSub: { fontSize: 10, color: "#BF6000", marginTop: 2, lineHeight: 16 },
+  warnText: { fontSize: 12, fontWeight: "700", color: Colors.tagOrangeText },
+  warnSub: { fontSize: 10, color: Colors.tagOrangeSubtext, marginTop: 2, lineHeight: 16 },
   dangerBox: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: Colors.tagRedBg,
     borderRadius: 14,
     padding: 12,
     marginTop: 9,
@@ -281,12 +291,12 @@ const styles = StyleSheet.create({
     gap: 9,
     alignItems: "flex-start",
     borderLeftWidth: 3,
-    borderLeftColor: "#C62828",
+    borderLeftColor: Colors.tagRedBorder,
   },
   dangerIcon: { fontSize: 16 },
-  dangerText: { fontSize: 12, fontWeight: "700", color: "#C62828" },
+  dangerText: { fontSize: 12, fontWeight: "700", color: Colors.tagRedText },
   scanAgainBtn: {
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     borderRadius: 15,
     padding: 13,
     marginTop: 12,
@@ -296,9 +306,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   scanAgainIcon: { fontSize: 16 },
-  scanAgainText: { fontSize: 13, fontWeight: "800", color: "#1565C0" },
+  scanAgainText: { fontSize: 13, fontWeight: "800", color: Colors.primary },
   storesBtn: {
-    backgroundColor: "#1565C0",
+    backgroundColor: Colors.primary,
     borderRadius: 15,
     padding: 14,
     marginTop: 9,
@@ -309,5 +319,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   storesBtnIcon: { fontSize: 16 },
-  storesBtnText: { fontSize: 13, fontWeight: "800", color: "#fff" },
+  storesBtnText: { fontSize: 13, fontWeight: "800", color: Colors.white },
 });

@@ -8,106 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useLanguage } from "../services/LanguageContext";
-
-const medicines = [
-  {
-    id: 1,
-    name: "Paracetamol 500mg",
-    desc: "Fever · Pain Relief",
-    category: "Tablet",
-    bgColor: "#E8F0FE",
-    textColor: "#1565C0",
-  },
-  {
-    id: 2,
-    name: "Metformin 850mg",
-    desc: "Diabetes · Blood Sugar",
-    category: "Tablet",
-    bgColor: "#E8F5E9",
-    textColor: "#2E7D32",
-  },
-  {
-    id: 3,
-    name: "Amlodipine 5mg",
-    desc: "Blood Pressure",
-    category: "Tablet",
-    bgColor: "#FFF3E0",
-    textColor: "#E65100",
-  },
-  {
-    id: 4,
-    name: "Azithromycin 500mg",
-    desc: "Antibiotic · Infections",
-    category: "Tablet",
-    bgColor: "#E8F0FE",
-    textColor: "#1565C0",
-  },
-  {
-    id: 5,
-    name: "Pantoprazole 40mg",
-    desc: "Acidity · Gastric",
-    category: "Tablet",
-    bgColor: "#FFEBEE",
-    textColor: "#C62828",
-  },
-  {
-    id: 6,
-    name: "Vitamin D3 60K IU",
-    desc: "Supplement · Bone Health",
-    category: "Capsule",
-    bgColor: "#E8F5E9",
-    textColor: "#2E7D32",
-  },
-  {
-    id: 7,
-    name: "Cetirizine 10mg",
-    desc: "Allergy · Cold",
-    category: "Tablet",
-    bgColor: "#E8F0FE",
-    textColor: "#1565C0",
-  },
-  {
-    id: 8,
-    name: "Amoxicillin 500mg",
-    desc: "Antibiotic · Bacterial",
-    category: "Capsule",
-    bgColor: "#FFF3E0",
-    textColor: "#E65100",
-  },
-  {
-    id: 9,
-    name: "Omeprazole 20mg",
-    desc: "Acidity · Ulcer",
-    category: "Capsule",
-    bgColor: "#FFEBEE",
-    textColor: "#C62828",
-  },
-  {
-    id: 10,
-    name: "Atorvastatin 10mg",
-    desc: "Cholesterol · Heart",
-    category: "Tablet",
-    bgColor: "#E8F0FE",
-    textColor: "#1565C0",
-  },
-  {
-    id: 11,
-    name: "Cough Syrup 100ml",
-    desc: "Cough · Cold Relief",
-    category: "Syrup",
-    bgColor: "#E8F5E9",
-    textColor: "#2E7D32",
-  },
-  {
-    id: 12,
-    name: "Insulin 100IU",
-    desc: "Diabetes · Blood Sugar",
-    category: "Injection",
-    bgColor: "#FFF3E0",
-    textColor: "#E65100",
-  },
-];
+import Colors from "../constants/colors";
+import { LIBRARY_MEDICINES } from "../data/libraryMedicines";
 
 const filters = [
   { label: "All", value: "All" },
@@ -118,11 +20,10 @@ const filters = [
 ];
 
 export default function LibraryScreen({ navigation }) {
-  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
 
-  const filtered = medicines.filter((m) => {
+  const filtered = LIBRARY_MEDICINES.filter((m) => {
     const matchSearch = m.name.toLowerCase().includes(search.toLowerCase());
     const matchFilter = activeFilter === "All" || m.category === activeFilter;
     return matchSearch && matchFilter;
@@ -130,7 +31,7 @@ export default function LibraryScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
 
       {/* HEADER */}
       <View style={styles.header}>
@@ -153,7 +54,7 @@ export default function LibraryScreen({ navigation }) {
           <TextInput
             style={styles.searchInput}
             placeholder="Search medicine name..."
-            placeholderTextColor="#9AA5B4"
+            placeholderTextColor={Colors.textMuted}
             value={search}
             onChangeText={setSearch}
           />
@@ -215,7 +116,7 @@ export default function LibraryScreen({ navigation }) {
             <TouchableOpacity
               key={med.id}
               style={styles.medRow}
-              onPress={() => navigation.navigate("Result")}
+              onPress={() => navigation.navigate("Result", { medicine: { name: med.name, uses: med.uses, dosage: med.dosage, sideEffects: med.sideEffects, warnings: med.warnings, category: med.category } })}
             >
               {/* ICON */}
               <View
@@ -246,57 +147,57 @@ export default function LibraryScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F7FC", paddingTop: 50 },
+  container: { flex: 1, backgroundColor: Colors.background, paddingTop: 50 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#E8EDF5",
+    borderBottomColor: Colors.border,
   },
   headerLeft: { flex: 1 },
-  headerTitle: { fontSize: 16, fontWeight: "800", color: "#0D1B2A" },
-  headerSub: { fontSize: 10, color: "#9AA5B4", marginTop: 2 },
+  headerTitle: { fontSize: 16, fontWeight: "800", color: Colors.textDark },
+  headerSub: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
   scanBtn: {
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  scanBtnText: { fontSize: 12, fontWeight: "700", color: "#1565C0" },
+  scanBtnText: { fontSize: 12, fontWeight: "700", color: Colors.primary },
   searchWrap: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#E8EDF5",
+    borderBottomColor: Colors.border,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F4F7FC",
+    backgroundColor: Colors.background,
     borderRadius: 13,
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderWidth: 1.5,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
     gap: 8,
   },
   searchIcon: { fontSize: 14 },
-  searchInput: { flex: 1, fontSize: 13, color: "#0D1B2A" },
+  searchInput: { flex: 1, fontSize: 13, color: Colors.textDark },
   clearBtn: {
     fontSize: 14,
-    color: "#9AA5B4",
+    color: Colors.textMuted,
     fontWeight: "700",
     paddingHorizontal: 4,
   },
   filterWrap: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E8EDF5",
+    borderBottomColor: Colors.border,
   },
   filterContent: {
     paddingHorizontal: 14,
@@ -309,17 +210,17 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: "#E8EDF5",
-    backgroundColor: "#fff",
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
   },
-  chipActive: { backgroundColor: "#1565C0", borderColor: "#1565C0" },
-  chipText: { fontSize: 12, fontWeight: "700", color: "#4A5568" },
-  chipTextActive: { color: "#fff" },
+  chipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  chipText: { fontSize: 12, fontWeight: "700", color: Colors.textMedium },
+  chipTextActive: { color: Colors.white },
   countRow: { paddingHorizontal: 16, paddingVertical: 8 },
-  countText: { fontSize: 11, color: "#9AA5B4", fontWeight: "600" },
+  countText: { fontSize: 11, color: Colors.textMuted, fontWeight: "600" },
   listContent: { paddingHorizontal: 14, paddingBottom: 90 },
   medRow: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 12,
     flexDirection: "row",
@@ -327,7 +228,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 9,
     borderWidth: 1,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
   },
   medIconBox: {
     width: 44,
@@ -339,8 +240,8 @@ const styles = StyleSheet.create({
   },
   medEmoji: { fontSize: 22 },
   medInfo: { flex: 1 },
-  medName: { fontSize: 13, fontWeight: "700", color: "#0D1B2A" },
-  medDesc: { fontSize: 10, color: "#4A5568", marginTop: 2 },
+  medName: { fontSize: 13, fontWeight: "700", color: Colors.textDark },
+  medDesc: { fontSize: 10, color: Colors.textMedium, marginTop: 2 },
   catTag: {
     alignSelf: "flex-start",
     marginTop: 5,
@@ -349,14 +250,14 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
   catText: { fontSize: 10, fontWeight: "700" },
-  arrow: { fontSize: 22, color: "#9AA5B4", fontWeight: "300" },
+  arrow: { fontSize: 22, color: Colors.textMuted, fontWeight: "300" },
   emptyBox: { alignItems: "center", paddingTop: 80 },
   emptyIcon: { fontSize: 48 },
   emptyText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#0D1B2A",
+    color: Colors.textDark,
     marginTop: 14,
   },
-  emptySub: { fontSize: 12, color: "#9AA5B4", marginTop: 6 },
+  emptySub: { fontSize: 12, color: Colors.textMuted, marginTop: 6 },
 });

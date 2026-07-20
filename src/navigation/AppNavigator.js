@@ -6,11 +6,13 @@ import { Platform, Text } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import LibraryScreen from "../screens/LibraryScreen";
 import ResultScreen from "../screens/ResultScreen";
+import ScanHistoryScreen from "../screens/ScanHistoryScreen";
 import ScanScreen from "../screens/ScanScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import StoresScreen from "../screens/StoresScreen";
 
-import { useLanguage } from "./LanguageContext";
+import Colors from "../constants/colors";
+import { useLanguage } from "../context/LanguageContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,14 +25,14 @@ function HomeTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#ffffff",
-          borderTopColor: "#E8EDF5",
+          backgroundColor: Colors.surface,
+          borderTopColor: Colors.border,
           borderTopWidth: 1,
           height: Platform.OS === "android" ? 70 : 85,
           paddingBottom: Platform.OS === "android" ? 10 : 25,
           paddingTop: 6,
           elevation: 8,
-          shadowColor: "#000",
+          shadowColor: Colors.screenBlack,
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.05,
           shadowRadius: 4,
@@ -39,8 +41,8 @@ function HomeTabs() {
           left: 0,
           right: 0,
         },
-        tabBarActiveTintColor: "#1565C0",
-        tabBarInactiveTintColor: "#9AA5B4",
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 9,
           fontWeight: "700",
@@ -102,14 +104,14 @@ function HomeTabs() {
   );
 }
 
-export default function Navigation() {
+export default function AppNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: true,
-        headerStyle: { backgroundColor: "#ffffff" },
-        headerTintColor: "#1565C0",
-        headerTitleStyle: { fontWeight: "800", fontSize: 16, color: "#0D1B2A" },
+        headerStyle: { backgroundColor: Colors.surface },
+        headerTintColor: Colors.primary,
+        headerTitleStyle: { fontWeight: "800", fontSize: 16, color: Colors.textDark },
         headerBackTitle: "Back",
         headerShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",
@@ -123,6 +125,11 @@ export default function Navigation() {
       <Stack.Screen
         name="Result"
         component={ResultScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ScanHistory"
+        component={ScanHistoryScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

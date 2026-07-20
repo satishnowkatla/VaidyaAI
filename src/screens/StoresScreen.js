@@ -11,26 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-function getDistanceKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1);
-}
-
-const NEARBY_STORES = [
-  { id: 1, name: "Medical Store 1", type: "pharmacy" },
-  { id: 2, name: "Medical Store 2", type: "pharmacy" },
-  { id: 3, name: "Medical Store 3", type: "pharmacy" },
-];
+import Colors from "../constants/colors";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function StoresScreen() {
+  const { lang } = useLanguage();
+  const isTE = lang === "te";
   const [userLocation, setUserLocation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [locError, setLocError] = useState(null);
@@ -71,32 +57,17 @@ export default function StoresScreen() {
     Linking.openURL(url);
   };
 
-  const openDirections = (lat, lng, name) => {
-    const dest = `${lat},${lng}`;
-    const label = encodeURIComponent(name);
-    const androidUrl = `google.navigation:q=${dest}`;
-    const webUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-    Linking.canOpenURL(androidUrl)
-      .then((ok) => Linking.openURL(ok ? androidUrl : webUrl))
-      .catch(() => Linking.openURL(webUrl));
-  };
-
-  const openNearbyInMaps = () => {
-    if (!userLocation) return;
-    const { lat, lng } = userLocation;
-    const url = `https://www.google.com/maps/search/medical+store+pharmacy/@${lat},${lng},15z`;
-    Linking.openURL(url);
-  };
-
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
 
       {/* HEADER */}
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>Nearby Stores</Text>
-          <Text style={styles.headerSub}>దగ్గరలో మెడికల్ షాపులు</Text>
+          <Text style={styles.headerSub}>
+            {isTE ? "దగ్గరలో మెడికల్ షాపులు" : "Find pharmacies near you"}
+          </Text>
         </View>
         <TouchableOpacity style={styles.refreshBtn} onPress={getLocation}>
           <Text style={styles.refreshIcon}>🔄</Text>
@@ -110,7 +81,7 @@ export default function StoresScreen() {
         {/* LOCATION STATUS */}
         {loading ? (
           <View style={styles.locBox}>
-            <ActivityIndicator size="large" color="#1565C0" />
+            <ActivityIndicator size="large" color={Colors.primary} />
             <Text style={styles.locText}>Getting your location...</Text>
           </View>
         ) : locError ? (
@@ -240,25 +211,25 @@ export default function StoresScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F7FC",
+    backgroundColor: Colors.background,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 44,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#E8EDF5",
+    borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 16, fontWeight: "800", color: "#0D1B2A" },
-  headerSub: { fontSize: 10, color: "#9AA5B4", marginTop: 2 },
+  headerTitle: { fontSize: 16, fontWeight: "800", color: Colors.textDark },
+  headerSub: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
   refreshBtn: {
     width: 38,
     height: 38,
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -266,10 +237,10 @@ const styles = StyleSheet.create({
   refreshIcon: { fontSize: 18 },
   scrollContent: { padding: 16, paddingBottom: 90 },
   locBox: { alignItems: "center", padding: 30, gap: 12 },
-  locText: { fontSize: 14, color: "#9AA5B4", fontWeight: "600" },
+  locText: { fontSize: 14, color: Colors.textMuted, fontWeight: "600" },
   errorBox: {
     alignItems: "center",
-    backgroundColor: "#FFF3E0",
+    backgroundColor: Colors.tagOrangeBg,
     borderRadius: 16,
     padding: 20,
     gap: 10,
@@ -277,32 +248,32 @@ const styles = StyleSheet.create({
   errorIcon: { fontSize: 36 },
   errorText: {
     fontSize: 13,
-    color: "#E65100",
+    color: Colors.tagOrangeText,
     textAlign: "center",
     fontWeight: "600",
   },
   retryBtn: {
-    backgroundColor: "#1565C0",
+    backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingHorizontal: 20,
     paddingVertical: 10,
     marginTop: 6,
   },
-  retryBtnText: { color: "#fff", fontWeight: "800", fontSize: 13 },
+  retryBtnText: { color: Colors.white, fontWeight: "800", fontSize: 13 },
   locSuccessBox: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: Colors.tagGreenBg,
     borderRadius: 12,
     padding: 10,
     marginBottom: 14,
   },
   locSuccessText: {
     fontSize: 11,
-    color: "#2E7D32",
+    color: Colors.tagGreenText,
     fontWeight: "600",
     textAlign: "center",
   },
   mainBtn: {
-    backgroundColor: "#1565C0",
+    backgroundColor: Colors.primary,
     borderRadius: 18,
     padding: 18,
     flexDirection: "row",
@@ -311,36 +282,36 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   mainBtnIcon: { fontSize: 32 },
-  mainBtnTitle: { fontSize: 15, fontWeight: "800", color: "#fff" },
-  mainBtnSub: { fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 3 },
+  mainBtnTitle: { fontSize: 15, fontWeight: "800", color: Colors.white },
+  mainBtnSub: { fontSize: 11, color: Colors.whiteMuted, marginTop: 3 },
   quickSection: { gap: 10, marginBottom: 20 },
   sectionTitle: {
     fontSize: 13,
     fontWeight: "800",
-    color: "#0D1B2A",
+    color: Colors.textDark,
     marginBottom: 4,
   },
   quickBtn: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     borderWidth: 1,
-    borderColor: "#E8EDF5",
+    borderColor: Colors.border,
   },
   quickBtnIcon: { fontSize: 28 },
   quickBtnText: { flex: 1 },
-  quickBtnTitle: { fontSize: 14, fontWeight: "700", color: "#0D1B2A" },
-  quickBtnSub: { fontSize: 10, color: "#9AA5B4", marginTop: 2 },
-  quickBtnArrow: { fontSize: 22, color: "#9AA5B4" },
+  quickBtnTitle: { fontSize: 14, fontWeight: "700", color: Colors.textDark },
+  quickBtnSub: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
+  quickBtnArrow: { fontSize: 22, color: Colors.textMuted },
   infoBox: {
-    backgroundColor: "#E8F0FE",
+    backgroundColor: Colors.primaryBg,
     borderRadius: 14,
     padding: 14,
     gap: 8,
   },
-  infoTitle: { fontSize: 13, fontWeight: "800", color: "#1565C0" },
-  infoText: { fontSize: 12, color: "#4A5568", lineHeight: 18 },
+  infoTitle: { fontSize: 13, fontWeight: "800", color: Colors.primary },
+  infoText: { fontSize: 12, color: Colors.textMedium, lineHeight: 18 },
 });

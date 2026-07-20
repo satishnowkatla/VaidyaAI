@@ -11,11 +11,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useLanguage } from "../services/LanguageContext";
+import Colors from "../constants/colors";
+import { SCAN_CONFIG } from "../constants/config";
+import { useLanguage } from "../context/LanguageContext";
 import {
   scanMedicineImage,
   searchMedicineInfo,
-} from "../services/MedicineScanner";
+} from "../services/medicineService";
 
 export default function ScanScreen({ navigation }) {
   const { t } = useLanguage();
@@ -31,11 +33,11 @@ export default function ScanScreen({ navigation }) {
       setLoading(true);
       const photo = await cameraRef.current.takePictureAsync({
         base64: true,
-        quality: 0.3,
-        width: 800,
+        quality: SCAN_CONFIG.imageQuality,
+        width: SCAN_CONFIG.imageWidth,
       });
       await processImage(photo.base64);
-    } catch (error) {
+    } catch (_error) {
       setLoading(false);
       Alert.alert("Error", "Failed to capture image. Please try again.");
     }
@@ -51,7 +53,7 @@ export default function ScanScreen({ navigation }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.3,
+      quality: SCAN_CONFIG.imageQuality,
       base64: true,
     });
     if (!result.canceled && result.assets[0].base64) {
@@ -75,7 +77,7 @@ export default function ScanScreen({ navigation }) {
       const medicineInfo = await searchMedicineInfo(medicineName);
       setLoading(false);
       navigation.navigate("Result", { medicine: medicineInfo });
-    } catch (error) {
+    } catch (_error) {
       setLoading(false);
       Alert.alert("Error", "Something went wrong. Please try again.");
     }
@@ -84,7 +86,7 @@ export default function ScanScreen({ navigation }) {
   if (!permission) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1565C0" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -171,7 +173,7 @@ export default function ScanScreen({ navigation }) {
       <View style={styles.bottomPanel}>
         {loading ? (
           <View style={styles.loadingBox}>
-            <ActivityIndicator size="large" color="#1565C0" />
+            <ActivityIndicator size="large" color={Colors.primary} />
             <Text style={styles.loadingMsg}>Scanning medicine...</Text>
             <Text style={styles.loadingSubMsg}>
               Reading text from image using AI
@@ -210,7 +212,7 @@ export default function ScanScreen({ navigation }) {
                 <View
                   style={[
                     styles.sideBtnIc,
-                    torch && { backgroundColor: "#FFF9C4" },
+                    torch && { backgroundColor: Colors.torchActive },
                   ]}
                 >
                   <Text style={{ fontSize: 22 }}>{torch ? "⚡" : "🔦"}</Text>
@@ -228,18 +230,18 @@ export default function ScanScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
+  container: { flex: 1, backgroundColor: Colors.screenBlack },
   loadingContainer: {
     flex: 1,
-    backgroundColor: "#0a1628",
+    backgroundColor: Colors.darkBg,
     alignItems: "center",
     justifyContent: "center",
   },
-  camera: { flex: 1, backgroundColor: "#000" },
+  camera: { flex: 1, backgroundColor: Colors.screenBlack },
   cameraWrapper: { flex: 1 },
   overlayContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   overlayTop: {
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: Colors.overlay,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 44,
   },
   scanHeader: {
@@ -253,25 +255,25 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 13,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: Colors.whiteBtnBg,
     alignItems: "center",
     justifyContent: "center",
   },
-  iconBtnText: { fontSize: 18, color: "#fff" },
-  scanTitle: { fontSize: 16, fontWeight: "800", color: "#fff" },
+  iconBtnText: { fontSize: 18, color: Colors.white },
+  scanTitle: { fontSize: 16, fontWeight: "800", color: Colors.white },
   frameArea: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 30,
   },
-  sideDark: { flex: 1, height: 180, backgroundColor: "rgba(0,0,0,0.5)" },
+  sideDark: { flex: 1, height: 180, backgroundColor: Colors.overlayMedium },
   frameBox: { width: 240, height: 180, position: "relative" },
   corner: {
     position: "absolute",
     width: 28,
     height: 28,
-    borderColor: "#1E88E5",
+    borderColor: Colors.primaryDark,
     borderStyle: "solid",
   },
   cornerTL: {
@@ -303,14 +305,14 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 5,
   },
   tipRow: {
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: Colors.overlayMedium,
     alignItems: "center",
     paddingVertical: 10,
   },
   frameTip: {
-    color: "rgba(255,255,255,0.7)",
+    color: Colors.whiteMuted,
     fontSize: 12,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: Colors.overlayLight,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
@@ -318,18 +320,18 @@ const styles = StyleSheet.create({
   flipRow: {
     alignItems: "center",
     paddingVertical: 10,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: Colors.overlayLight,
   },
   flipBtn: {
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: Colors.whiteBtnBg,
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
-  flipBtnText: { color: "#fff", fontSize: 13, fontWeight: "700" },
-  overlayBottom: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+  flipBtnText: { color: Colors.white, fontSize: 13, fontWeight: "700" },
+  overlayBottom: { flex: 1, backgroundColor: Colors.overlayMedium },
   bottomPanel: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     paddingHorizontal: 22,
     paddingTop: 18,
     paddingBottom: 90,
@@ -338,13 +340,13 @@ const styles = StyleSheet.create({
   loadingMsg: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#1565C0",
+    color: Colors.primary,
     marginTop: 14,
   },
-  loadingSubMsg: { fontSize: 12, color: "#9AA5B4", marginTop: 6 },
+  loadingSubMsg: { fontSize: 12, color: Colors.textMuted, marginTop: 6 },
   instructions: { alignItems: "center", marginBottom: 20 },
-  instrTitle: { fontSize: 13, fontWeight: "600", color: "#0D1B2A" },
-  instrSub: { fontSize: 11, color: "#9AA5B4", marginTop: 3 },
+  instrTitle: { fontSize: 13, fontWeight: "600", color: Colors.textDark },
+  instrSub: { fontSize: 11, color: Colors.textMuted, marginTop: 3 },
   btnRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -356,25 +358,25 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 14,
-    backgroundColor: "#F4F7FC",
+    backgroundColor: Colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
-  sideBtnTxt: { fontSize: 10, color: "#9AA5B4", fontWeight: "600" },
+  sideBtnTxt: { fontSize: 10, color: Colors.textMuted, fontWeight: "600" },
   captureBtn: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#1565C0",
+    backgroundColor: Colors.primary,
     borderWidth: 5,
-    borderColor: "#BBDEFB",
+    borderColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     elevation: 8,
   },
   permContainer: {
     flex: 1,
-    backgroundColor: "#0a1628",
+    backgroundColor: Colors.darkBg,
     alignItems: "center",
     justifyContent: "center",
     padding: 30,
@@ -383,25 +385,25 @@ const styles = StyleSheet.create({
   permTitle: {
     fontSize: 20,
     fontWeight: "800",
-    color: "#fff",
+    color: Colors.white,
     textAlign: "center",
   },
   permSub: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.6)",
+    color: Colors.whiteDim,
     textAlign: "center",
     marginTop: 10,
     lineHeight: 20,
   },
   permBtn: {
-    backgroundColor: "#1565C0",
+    backgroundColor: Colors.primary,
     borderRadius: 15,
     padding: 14,
     marginTop: 30,
     width: "100%",
     alignItems: "center",
   },
-  permBtnText: { fontSize: 14, fontWeight: "800", color: "#fff" },
+  permBtnText: { fontSize: 14, fontWeight: "800", color: Colors.white },
   skipBtn: { marginTop: 14, padding: 10 },
-  skipBtnText: { fontSize: 13, color: "rgba(255,255,255,0.5)" },
+  skipBtnText: { fontSize: 13, color: Colors.whiteFaint },
 });

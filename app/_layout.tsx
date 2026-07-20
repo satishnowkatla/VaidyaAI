@@ -1,11 +1,11 @@
 import React from "react";
-import { LanguageProvider } from "../services/LanguageContext";
-import Navigation from "../services/Navigation";
+import { LanguageProvider } from "../src/context/LanguageContext";
+import AppNavigator from "../src/navigation/AppNavigator";
 
 export default function RootLayout() {
   return (
     <LanguageProvider>
-      <Navigation />
+      <AppNavigator />
     </LanguageProvider>
   );
 }
