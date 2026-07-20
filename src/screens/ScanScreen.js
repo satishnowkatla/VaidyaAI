@@ -18,14 +18,19 @@ import Colors from "../constants/colors";
 import { SCAN_CONFIG } from "../constants/config";
 import { Radius, Shadow, Spacing } from "../constants/spacing";
 import { Typography } from "../constants/typography";
+import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useTheme } from "../context/ThemeContext";
 import {
   scanMedicineImage,
   searchMedicineInfo,
 } from "../services/medicineService";
+import { saveScan } from "../services/scanHistory";
 
 export default function ScanScreen({ navigation }) {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { colors } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [torch, setTorch] = useState(false);
   const [facing, setFacing] = useState("back");
@@ -101,6 +106,9 @@ export default function ScanScreen({ navigation }) {
       }
       const medicineInfo = await searchMedicineInfo(medicineName);
       setLoading(false);
+      if (user?.id) {
+        saveScan(user.id, medicineInfo);
+      }
       navigation.navigate("Result", { medicine: medicineInfo });
     } catch (_error) {
       setLoading(false);
@@ -111,7 +119,7 @@ export default function ScanScreen({ navigation }) {
   if (!permission) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primaryLight} />
+        <ActivityIndicator size="large" color={colors.primaryLight} />
       </View>
     );
   }
@@ -120,11 +128,11 @@ export default function ScanScreen({ navigation }) {
     return (
       <View style={styles.permContainer}>
         <LinearGradient
-          colors={Colors.gradient.hero}
+          colors={colors.gradient.hero}
           style={styles.permGradient}
         >
           <View style={styles.permIconCircle}>
-            <Ionicons name="camera" size={40} color={Colors.white} />
+            <Ionicons name="camera" size={40} color={colors.white} />
           </View>
           <Text style={styles.permTitle}>Camera Permission Needed</Text>
           <Text style={styles.permSub}>
@@ -137,12 +145,12 @@ export default function ScanScreen({ navigation }) {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={Colors.gradient.accent}
+              colors={colors.gradient.accent}
               style={styles.permBtnGrad}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+              <Ionicons name="checkmark-circle" size={18} color={colors.white} />
               <Text style={styles.permBtnText}>Allow Camera Access</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -178,7 +186,7 @@ export default function ScanScreen({ navigation }) {
                 onPress={() => navigation.goBack()}
                 activeOpacity={0.7}
               >
-                <Ionicons name="arrow-back" size={20} color={Colors.white} />
+                <Ionicons name="arrow-back" size={20} color={colors.white} />
               </TouchableOpacity>
               <Text style={styles.scanTitle}>{t("scan")}</Text>
               <TouchableOpacity
@@ -189,7 +197,7 @@ export default function ScanScreen({ navigation }) {
                 <Ionicons
                   name={torch ? "flash" : "flash-outline"}
                   size={20}
-                  color={Colors.white}
+                  color={colors.white}
                 />
               </TouchableOpacity>
             </View>
@@ -222,7 +230,7 @@ export default function ScanScreen({ navigation }) {
               onPress={() => setFacing(facing === "back" ? "front" : "back")}
               activeOpacity={0.7}
             >
-              <Ionicons name="camera-reverse" size={18} color={Colors.white} />
+              <Ionicons name="camera-reverse" size={18} color={colors.white} />
               <Text style={styles.flipBtnText}>Flip Camera</Text>
             </TouchableOpacity>
           </View>
@@ -230,29 +238,29 @@ export default function ScanScreen({ navigation }) {
       </View>
 
       {/* ── Bottom Panel ── */}
-      <View style={styles.bottomPanel}>
+      <View style={[styles.bottomPanel, { backgroundColor: colors.surface }]}>
         {loading ? (
           <View style={styles.loadingBox}>
             <Animated.View
               style={[
                 styles.loadingCircle,
-                { transform: [{ scale: pulseAnim }] },
+                { transform: [{ scale: pulseAnim }], backgroundColor: colors.primaryBg },
               ]}
             >
-              <Ionicons name="scan" size={32} color={Colors.primary} />
+              <Ionicons name="scan" size={32} color={colors.primary} />
             </Animated.View>
-            <Text style={styles.loadingMsg}>Scanning medicine...</Text>
-            <Text style={styles.loadingSubMsg}>
+            <Text style={[styles.loadingMsg, { color: colors.primary }]}>Scanning medicine...</Text>
+            <Text style={[styles.loadingSubMsg, { color: colors.textMuted }]}>
               Reading text from image using AI
             </Text>
           </View>
         ) : (
           <>
             <View style={styles.instructions}>
-              <Text style={styles.instrTitle}>
+              <Text style={[styles.instrTitle, { color: colors.textPrimary }]}>
                 Hold camera steady over the medicine
               </Text>
-              <Text style={styles.instrSub}>
+              <Text style={[styles.instrSub, { color: colors.textMuted }]}>
                 Make sure text on strip is clearly visible
               </Text>
             </View>
@@ -263,10 +271,10 @@ export default function ScanScreen({ navigation }) {
                 onPress={pickImage}
                 activeOpacity={0.7}
               >
-                <View style={styles.sideBtnIcon}>
-                  <Ionicons name="images" size={22} color={Colors.primary} />
+                <View style={[styles.sideBtnIcon, { backgroundColor: colors.primaryBg }]}>
+                  <Ionicons name="images" size={22} color={colors.primary} />
                 </View>
-                <Text style={styles.sideBtnTxt}>Gallery</Text>
+                <Text style={[styles.sideBtnTxt, { color: colors.textMuted }]}>Gallery</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -275,10 +283,10 @@ export default function ScanScreen({ navigation }) {
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={Colors.gradient.scan}
+                  colors={colors.gradient.scan}
                   style={styles.captureGrad}
                 >
-                  <Ionicons name="camera" size={28} color={Colors.white} />
+                  <Ionicons name="camera" size={28} color={colors.white} />
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -290,16 +298,17 @@ export default function ScanScreen({ navigation }) {
                 <View
                   style={[
                     styles.sideBtnIcon,
-                    torch && styles.sideBtnIconActive,
+                    { backgroundColor: colors.primaryBg },
+                    torch && { backgroundColor: colors.primary },
                   ]}
                 >
                   <Ionicons
                     name={torch ? "flash" : "flash-outline"}
                     size={22}
-                    color={torch ? Colors.white : Colors.primary}
+                    color={torch ? colors.white : colors.primary}
                   />
                 </View>
-                <Text style={styles.sideBtnTxt}>
+                <Text style={[styles.sideBtnTxt, { color: colors.textMuted }]}>
                   {torch ? "Flash On" : "Flash"}
                 </Text>
               </TouchableOpacity>

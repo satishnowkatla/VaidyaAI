@@ -15,6 +15,7 @@ import Colors from "../constants/colors";
 import { Radius, Shadow, Spacing } from "../constants/spacing";
 import { Typography } from "../constants/typography";
 import { useLanguage } from "../context/LanguageContext";
+import { useTheme } from "../context/ThemeContext";
 
 const T = {
   uses: "Uses",
@@ -42,17 +43,18 @@ const T_TE = {
   scanAgain: "మళ్ళీ స్కాన్ చేయండి",
 };
 
-const sections = [
-  { key: "uses", icon: "medkit", gradient: Colors.gradient.primary },
-  { key: "dosage", icon: "timer", gradient: Colors.gradient.accent },
-  { key: "sideEffects", icon: "warning", gradient: Colors.gradient.warm },
-  { key: "category", icon: "folder", gradient: Colors.gradient.purple },
-];
-
 export default function ResultScreen({ navigation, route }) {
   const { lang } = useLanguage();
+  const { colors } = useTheme();
   const isTE = lang === "te";
   const tr = isTE ? T_TE : T;
+
+  const sections = [
+    { key: "uses", icon: "medkit", gradient: colors.gradient.primary },
+    { key: "dosage", icon: "timer", gradient: colors.gradient.accent },
+    { key: "sideEffects", icon: "warning", gradient: colors.gradient.warm },
+    { key: "category", icon: "folder", gradient: colors.gradient.purple },
+  ];
 
   const medicine = route?.params?.medicine || {
     name: "Paracetamol 500mg",
@@ -72,12 +74,12 @@ export default function ResultScreen({ navigation, route }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
 
       {/* ── Gradient Header ── */}
       <LinearGradient
-        colors={Colors.gradient.hero}
+        colors={colors.gradient.hero}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -88,7 +90,7 @@ export default function ResultScreen({ navigation, route }) {
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            <Ionicons name="arrow-back" size={20} color={Colors.white} />
+            <Ionicons name="arrow-back" size={20} color={colors.white} />
           </TouchableOpacity>
           <Text style={styles.headerText}>{tr.details}</Text>
           <TouchableOpacity
@@ -96,7 +98,7 @@ export default function ResultScreen({ navigation, route }) {
             onPress={handleShare}
             activeOpacity={0.7}
           >
-            <Ionicons name="share-social" size={18} color={Colors.white} />
+            <Ionicons name="share-social" size={18} color={colors.white} />
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -109,7 +111,7 @@ export default function ResultScreen({ navigation, route }) {
         <View style={styles.medCard}>
           <View style={styles.medTop}>
             <View style={styles.medIconWrap}>
-              <Ionicons name="medical" size={28} color={Colors.primary} />
+              <Ionicons name="medical" size={28} color={colors.primary} />
             </View>
             <View style={styles.medInfo}>
               <Text style={styles.medName}>{medicine.name}</Text>
@@ -118,11 +120,11 @@ export default function ResultScreen({ navigation, route }) {
           </View>
           <View style={styles.tagRow}>
             <View style={styles.safeTag}>
-              <Ionicons name="checkmark-circle" size={14} color={Colors.tagGreenText} />
+              <Ionicons name="checkmark-circle" size={14} color={colors.tagGreenText} />
               <Text style={styles.safeText}>✓ {tr.safe}</Text>
             </View>
             <View style={styles.aiTag}>
-              <Ionicons name="sparkles" size={12} color={Colors.primary} />
+              <Ionicons name="sparkles" size={12} color={colors.primary} />
               <Text style={styles.aiText}>{tr.match}</Text>
             </View>
           </View>
@@ -136,7 +138,7 @@ export default function ResultScreen({ navigation, route }) {
                 colors={s.gradient}
                 style={styles.sectionIconWrap}
               >
-                <Ionicons name={s.icon} size={18} color={Colors.white} />
+                <Ionicons name={s.icon} size={18} color={colors.white} />
               </LinearGradient>
             </View>
             <View style={styles.sectionContent}>
@@ -149,7 +151,7 @@ export default function ResultScreen({ navigation, route }) {
         {/* ── Warning Box ── */}
         <View style={styles.warnBox}>
           <View style={styles.warnIconWrap}>
-            <Ionicons name="warning" size={20} color={Colors.warningText} />
+            <Ionicons name="warning" size={20} color={colors.warningText} />
           </View>
           <View style={styles.warnContent}>
             <Text style={styles.warnTitle}>{tr.warnings}</Text>
@@ -159,7 +161,7 @@ export default function ResultScreen({ navigation, route }) {
 
         {/* ── Danger Box ── */}
         <View style={styles.dangerBox}>
-          <Ionicons name="shield-checkmark" size={18} color={Colors.tagRedText} />
+          <Ionicons name="shield-checkmark" size={18} color={colors.tagRedText} />
           <Text style={styles.dangerText}>
             {isTE
               ? "ఇది వైద్య సలహాకు ప్రత్యామ్నాయం కాదు"
@@ -173,7 +175,7 @@ export default function ResultScreen({ navigation, route }) {
           onPress={() => navigation.goBack()}
           activeOpacity={0.8}
         >
-          <Ionicons name="camera" size={18} color={Colors.primary} />
+          <Ionicons name="camera" size={18} color={colors.primary} />
           <Text style={styles.scanBtnText}>{tr.scanAgain}</Text>
         </TouchableOpacity>
 
@@ -183,10 +185,10 @@ export default function ResultScreen({ navigation, route }) {
           activeOpacity={0.8}
         >
           <LinearGradient
-            colors={Colors.gradient.primary}
+            colors={colors.gradient.primary}
             style={styles.storesBtnGrad}
           >
-            <Ionicons name="location" size={18} color={Colors.white} />
+            <Ionicons name="location" size={18} color={colors.white} />
             <Text style={styles.storesBtnText}>{tr.stores}</Text>
           </LinearGradient>
         </TouchableOpacity>

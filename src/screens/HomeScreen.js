@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -10,18 +10,33 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Colors from "../constants/colors";
 import { Radius, Shadow, Spacing } from "../constants/spacing";
 import { Typography } from "../constants/typography";
+import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useTheme } from "../context/ThemeContext";
 import MedicalDisclaimer from "../components/MedicalDisclaimer";
+import { getScanHistory } from "../services/scanHistory";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen({ navigation }) {
   const { t, lang, toggleLanguage } = useLanguage();
+  const { user } = useAuth();
+  const { colors } = useTheme();
+  const isTE = lang === "te";
   const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [recentScans, setRecentScans] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        getScanHistory(user.id).then((h) => setRecentScans(h.slice(0, 3)));
+      }
+    }, [user])
+  );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <MedicalDisclaimer
         visible={showDisclaimer}
         onAccept={() => setShowDisclaimer(false)}
@@ -30,26 +45,26 @@ export default function HomeScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ── Gradient Header ── */}
         <LinearGradient
-          colors={Colors.gradient.hero}
+          colors={colors.gradient.hero}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}
         >
           <View style={styles.headerTop}>
             <View style={styles.logoRow}>
-              <View style={styles.logoIcon}>
-                <Ionicons name="medical" size={18} color={Colors.white} />
+              <View style={[styles.logoIcon, { backgroundColor: "rgba(255,255,255,0.2)" }]}>
+                <Ionicons name="medical" size={18} color={colors.white} />
               </View>
-              <Text style={styles.logoText}>VaidyaAI</Text>
+              <Text style={[styles.logoText, { color: colors.white }]}>VaidyaAI</Text>
             </View>
             <TouchableOpacity
-              style={styles.langToggle}
+              style={[styles.langToggle, { backgroundColor: "rgba(255,255,255,0.15)" }]}
               onPress={toggleLanguage}
             >
               <Text
                 style={[
                   styles.langOpt,
-                  lang === "en" && styles.langActive,
+                  lang === "en" && { backgroundColor: colors.white, color: colors.primary },
                 ]}
               >
                 EN
@@ -57,7 +72,7 @@ export default function HomeScreen({ navigation }) {
               <Text
                 style={[
                   styles.langOpt,
-                  lang === "te" && styles.langActive,
+                  lang === "te" && { backgroundColor: colors.white, color: colors.primary },
                 ]}
               >
                 తె
@@ -66,33 +81,35 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <View style={styles.greetSection}>
-            <Text style={styles.greetSm}>{t("appName")}</Text>
-            <Text style={styles.greetName}>Welcome back 👋</Text>
+            <Text style={[styles.greetSm, { color: "rgba(255,255,255,0.7)" }]}>{t("appName")}</Text>
+            <Text style={[styles.greetName, { color: colors.white }]}>
+              Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
+            </Text>
           </View>
 
           {/* ── Hero Scan Card ── */}
           <TouchableOpacity
-            style={styles.heroCard}
+            style={[styles.heroCard, { backgroundColor: colors.white }]}
             onPress={() => navigation.navigate("Scan")}
             activeOpacity={0.85}
           >
             <View style={styles.heroContent}>
-              <View style={styles.heroIconCircle}>
-                <Ionicons name="scan" size={28} color={Colors.primary} />
+              <View style={[styles.heroIconCircle, { backgroundColor: colors.primaryBg }]}>
+                <Ionicons name="scan" size={28} color={colors.primary} />
               </View>
               <View style={styles.heroTextGroup}>
-                <Text style={styles.heroTitle}>{t("scan")}</Text>
-                <Text style={styles.heroSub}>{t("tagline")}</Text>
+                <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>{t("scan")}</Text>
+                <Text style={[styles.heroSub, { color: colors.textMuted }]}>{t("tagline")}</Text>
               </View>
             </View>
             <LinearGradient
-              colors={Colors.gradient.accent}
+              colors={colors.gradient.accent}
               style={styles.heroBtn}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Ionicons name="camera" size={16} color={Colors.white} />
-              <Text style={styles.heroBtnText}>{t("scanNow")}</Text>
+              <Ionicons name="camera" size={16} color={colors.white} />
+              <Text style={[styles.heroBtnText, { color: colors.white }]}>{t("scanNow")}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </LinearGradient>
@@ -100,26 +117,26 @@ export default function HomeScreen({ navigation }) {
         {/* ── Quick Actions ── */}
         <View style={styles.quickGrid}>
           <TouchableOpacity
-            style={styles.quickCard}
+            style={[styles.quickCard, { backgroundColor: colors.surface }]}
             onPress={() => navigation.navigate("Library")}
             activeOpacity={0.7}
           >
-            <View style={[styles.quickIconCircle, { backgroundColor: Colors.primaryBg }]}>
-              <Ionicons name="book" size={22} color={Colors.primary} />
+            <View style={[styles.quickIconCircle, { backgroundColor: colors.primaryBg }]}>
+              <Ionicons name="book" size={22} color={colors.primary} />
             </View>
-            <Text style={styles.quickText}>{t("library")}</Text>
-            <Text style={styles.quickSub}>200+ medicines</Text>
+            <Text style={[styles.quickText, { color: colors.textPrimary }]}>{t("library")}</Text>
+            <Text style={[styles.quickSub, { color: colors.textMuted }]}>200+ medicines</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.quickCard}
+            style={[styles.quickCard, { backgroundColor: colors.surface }]}
             onPress={() => navigation.navigate("Stores")}
             activeOpacity={0.7}
           >
-            <View style={[styles.quickIconCircle, { backgroundColor: Colors.accentBg }]}>
-              <Ionicons name="location" size={22} color={Colors.accent} />
+            <View style={[styles.quickIconCircle, { backgroundColor: colors.accentBg }]}>
+              <Ionicons name="location" size={22} color={colors.accent} />
             </View>
-            <Text style={styles.quickText}>{t("stores")}</Text>
-            <Text style={styles.quickSub}>Find pharmacies</Text>
+            <Text style={[styles.quickText, { color: colors.textPrimary }]}>{t("stores")}</Text>
+            <Text style={[styles.quickSub, { color: colors.textMuted }]}>Find pharmacies</Text>
           </TouchableOpacity>
         </View>
 
@@ -128,65 +145,50 @@ export default function HomeScreen({ navigation }) {
           title={t("recentScans")}
           actionText={t("seeAll")}
           onAction={() => navigation.navigate("ScanHistory")}
+          colors={colors}
         />
 
-        <TouchableOpacity
-          style={styles.recentCard}
-          activeOpacity={0.7}
-          onPress={() =>
-            navigation.navigate("Result", {
-              medicine: {
-                name: "Paracetamol 500mg",
-                uses: "Relieves pain and reduces fever. Used for headaches, body aches, toothaches, and fever.",
-                dosage: "Adults: 500-1000mg every 4-6 hours as needed. Do not exceed 4000mg per day.",
-                sideEffects: "Nausea, vomiting, stomach upset, allergic reactions.",
-                warnings: "Do not take with alcohol. Avoid if you have liver disease.",
-                category: "Analgesic and Antipyretic",
-              },
-            })
-          }
-        >
-          <View style={[styles.recentIconWrap, { backgroundColor: Colors.primaryBg }]}>
-            <Ionicons name="medical" size={20} color={Colors.primary} />
-          </View>
-          <View style={styles.recentInfo}>
-            <Text style={styles.recentName}>Paracetamol 500mg</Text>
-            <Text style={styles.recentTime}>Today · 9:30 AM</Text>
-          </View>
-          <View style={styles.safeTag}>
-            <Ionicons name="checkmark-circle" size={12} color={Colors.tagGreenText} />
-            <Text style={styles.safeText}>{t("safe")}</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.recentCard}
-          activeOpacity={0.7}
-          onPress={() =>
-            navigation.navigate("Result", {
-              medicine: {
-                name: "Metformin 850mg",
-                uses: "Controls blood sugar levels in type 2 diabetes. May help with weight management.",
-                dosage: "850mg twice daily with meals. Start with low dose and increase gradually.",
-                sideEffects: "Stomach upset, diarrhea, nausea, metallic taste.",
-                warnings: "Monitor blood sugar regularly. May cause lactic acidosis (rare but serious).",
-                category: "Antidiabetic",
-              },
-            })
-          }
-        >
-          <View style={[styles.recentIconWrap, { backgroundColor: Colors.tagPurpleBg }]}>
-            <Ionicons name="medical" size={20} color={Colors.tagPurpleText} />
-          </View>
-          <View style={styles.recentInfo}>
-            <Text style={styles.recentName}>Metformin 850mg</Text>
-            <Text style={styles.recentTime}>Yesterday · 7:00 PM</Text>
-          </View>
-          <View style={styles.safeTag}>
-            <Ionicons name="checkmark-circle" size={12} color={Colors.tagGreenText} />
-            <Text style={styles.safeText}>{t("safe")}</Text>
-          </View>
-        </TouchableOpacity>
+        {recentScans.length === 0 ? (
+          <TouchableOpacity
+            style={[styles.recentCard, { backgroundColor: colors.surface }]}
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate("Scan")}
+          >
+            <View style={[styles.recentIconWrap, { backgroundColor: colors.primaryBg }]}>
+              <Ionicons name="camera" size={20} color={colors.primary} />
+            </View>
+            <View style={styles.recentInfo}>
+              <Text style={[styles.recentName, { color: colors.textPrimary }]}>
+                {isTE ? "మొదటి స్కాన్ ప్రారంభించండి" : "Start your first scan"}
+              </Text>
+              <Text style={[styles.recentTime, { color: colors.textMuted }]}>
+                {isTE ? "మందును స్కాన్ చేయడానికి ఇక్కడ నొక్కండి" : "Tap here to scan a medicine"}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+        ) : (
+          recentScans.map((scan) => (
+            <TouchableOpacity
+              key={scan.id}
+              style={[styles.recentCard, { backgroundColor: colors.surface }]}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate("Result", { medicine: scan })}
+            >
+              <View style={[styles.recentIconWrap, { backgroundColor: colors.primaryBg }]}>
+                <Ionicons name="medical" size={20} color={colors.primary} />
+              </View>
+              <View style={styles.recentInfo}>
+                <Text style={[styles.recentName, { color: colors.textPrimary }]}>{scan.name}</Text>
+                <Text style={[styles.recentTime, { color: colors.textMuted }]}>{scan.category}</Text>
+              </View>
+              <View style={[styles.safeTag, { backgroundColor: colors.tagGreenBg }]}>
+                <Ionicons name="checkmark-circle" size={12} color={colors.tagGreenText} />
+                <Text style={[styles.safeText, { color: colors.tagGreenText }]}>{t("safe")}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
 
         <View style={{ height: 20 }} />
       </ScrollView>
@@ -194,12 +196,12 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-function SectionHeader({ title, actionText, onAction }) {
+function SectionHeader({ title, actionText, onAction, colors }) {
   return (
     <View style={styles.sectionHead}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{title}</Text>
       <TouchableOpacity onPress={onAction} activeOpacity={0.6}>
-        <Text style={styles.seeAll}>{actionText}</Text>
+        <Text style={[styles.seeAll, { color: colors.primary }]}>{actionText}</Text>
       </TouchableOpacity>
     </View>
   );

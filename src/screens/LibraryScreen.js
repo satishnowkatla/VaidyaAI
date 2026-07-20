@@ -15,6 +15,7 @@ import Colors from "../constants/colors";
 import { Radius, Shadow, Spacing } from "../constants/spacing";
 import { Typography } from "../constants/typography";
 import { LIBRARY_MEDICINES } from "../data/libraryMedicines";
+import { useTheme } from "../context/ThemeContext";
 
 const filters = [
   { label: "All", value: "All", icon: "grid" },
@@ -25,6 +26,7 @@ const filters = [
 ];
 
 export default function LibraryScreen({ navigation }) {
+  const { colors } = useTheme();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
 
@@ -35,12 +37,12 @@ export default function LibraryScreen({ navigation }) {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
 
       {/* ── Gradient Header ── */}
       <LinearGradient
-        colors={Colors.gradient.hero}
+        colors={colors.gradient.hero}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -55,24 +57,24 @@ export default function LibraryScreen({ navigation }) {
             onPress={() => navigation.navigate("Scan")}
             activeOpacity={0.7}
           >
-            <Ionicons name="camera" size={16} color={Colors.primary} />
+            <Ionicons name="camera" size={16} color={colors.primary} />
             <Text style={styles.scanBtnText}>Scan</Text>
           </TouchableOpacity>
         </View>
 
         {/* ── Search Bar ── */}
         <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} color={Colors.textMuted} />
+          <Ionicons name="search" size={18} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search medicine name..."
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={search}
             onChangeText={setSearch}
           />
           {search.length > 0 && (
             <TouchableOpacity onPress={() => setSearch("")}>
-              <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+              <Ionicons name="close-circle" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -96,15 +98,15 @@ export default function LibraryScreen({ navigation }) {
               >
                 {active ? (
                   <LinearGradient
-                    colors={Colors.gradient.primary}
+                    colors={colors.gradient.primary}
                     style={styles.chipActiveGrad}
                   >
-                    <Ionicons name={f.icon} size={12} color={Colors.white} />
+                    <Ionicons name={f.icon} size={12} color={colors.white} />
                     <Text style={styles.chipTextActive}>{f.label}</Text>
                   </LinearGradient>
                 ) : (
                   <View style={styles.chipInner}>
-                    <Ionicons name={f.icon} size={12} color={Colors.textMuted} />
+                    <Ionicons name={f.icon} size={12} color={colors.textMuted} />
                     <Text style={styles.chipText}>{f.label}</Text>
                   </View>
                 )}
@@ -127,7 +129,7 @@ export default function LibraryScreen({ navigation }) {
         {filtered.length === 0 ? (
           <View style={styles.emptyBox}>
             <View style={styles.emptyIconCircle}>
-              <Ionicons name="search" size={32} color={Colors.primary} />
+              <Ionicons name="search" size={32} color={colors.primary} />
             </View>
             <Text style={styles.emptyText}>No medicines found</Text>
             <Text style={styles.emptySub}>Try a different search term</Text>
@@ -163,7 +165,7 @@ export default function LibraryScreen({ navigation }) {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           ))
         )}

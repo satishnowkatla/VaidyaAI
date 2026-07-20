@@ -5,20 +5,23 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../constants/colors";
 import { Radius, Shadow, Spacing } from "../constants/spacing";
 import { Typography } from "../constants/typography";
+import { useTheme } from "../context/ThemeContext";
 
 export default function MedicalDisclaimer({ visible, onAccept }) {
+  const { colors } = useTheme();
+
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.card}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           {/* ── Gradient Accent Top ── */}
           <LinearGradient
-            colors={Colors.gradient.primary}
+            colors={colors.gradient.primary}
             style={styles.accentTop}
           />
 
           <View style={styles.iconCircle}>
-            <Ionicons name="medical" size={32} color={Colors.primary} />
+            <Ionicons name="medical" size={32} color={colors.primary} />
           </View>
           <Text style={styles.title}>Medical Disclaimer</Text>
           <Text style={styles.body}>
@@ -27,7 +30,7 @@ export default function MedicalDisclaimer({ visible, onAccept }) {
             advice, diagnosis, or treatment.
           </Text>
           <View style={styles.warnCard}>
-            <Ionicons name="warning" size={16} color={Colors.tagRedText} />
+            <Ionicons name="warning" size={16} color={colors.tagRedText} />
             <Text style={styles.warn}>
               Always consult a qualified healthcare provider before making any
               medical decisions. Never disregard professional medical advice or
@@ -40,10 +43,10 @@ export default function MedicalDisclaimer({ visible, onAccept }) {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={Colors.gradient.primary}
+              colors={colors.gradient.primary}
               style={styles.btnGrad}
             >
-              <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+              <Ionicons name="checkmark-circle" size={18} color={colors.white} />
               <Text style={styles.btnText}>I Understand</Text>
             </LinearGradient>
           </TouchableOpacity>

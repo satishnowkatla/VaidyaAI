@@ -17,6 +17,7 @@ import Colors from "../constants/colors";
 import { Radius, Shadow, Spacing } from "../constants/spacing";
 import { Typography } from "../constants/typography";
 import { useLanguage } from "../context/LanguageContext";
+import { useTheme } from "../context/ThemeContext";
 
 const quickActions = [
   { key: "pharmacy", icon: "medkit", title: "Pharmacies", sub: "మందుల దుకాణాలు", query: "pharmacy+near+me" },
@@ -27,6 +28,7 @@ const quickActions = [
 
 export default function StoresScreen() {
   const { lang } = useLanguage();
+  const { colors } = useTheme();
   const isTE = lang === "te";
   const [userLocation, setUserLocation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,12 +63,12 @@ export default function StoresScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
 
       {/* ── Gradient Header ── */}
       <LinearGradient
-        colors={Colors.gradient.hero}
+        colors={colors.gradient.hero}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -81,7 +83,7 @@ export default function StoresScreen() {
             </Text>
           </View>
           <TouchableOpacity style={styles.refreshBtn} onPress={getLocation} activeOpacity={0.7}>
-            <Ionicons name="refresh" size={20} color={Colors.primary} />
+            <Ionicons name="refresh" size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -93,23 +95,23 @@ export default function StoresScreen() {
         {/* ── Location Status ── */}
         {loading ? (
           <View style={styles.locBox}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.locText}>Getting your location...</Text>
           </View>
         ) : locError ? (
           <View style={styles.errorBox}>
             <View style={styles.errorIconCircle}>
-              <Ionicons name="location" size={28} color={Colors.warningText} />
+              <Ionicons name="location" size={28} color={colors.warningText} />
             </View>
             <Text style={styles.errorText}>{locError}</Text>
             <TouchableOpacity style={styles.retryBtn} onPress={getLocation} activeOpacity={0.8}>
-              <Ionicons name="refresh" size={16} color={Colors.white} />
+              <Ionicons name="refresh" size={16} color={colors.white} />
               <Text style={styles.retryBtnText}>Retry</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.locSuccessBox}>
-            <Ionicons name="location" size={16} color={Colors.tagGreenText} />
+            <Ionicons name="location" size={16} color={colors.tagGreenText} />
             <Text style={styles.locSuccessText}>
               Location found · {userLocation?.lat.toFixed(4)}, {userLocation?.lng.toFixed(4)}
             </Text>
@@ -124,19 +126,19 @@ export default function StoresScreen() {
             activeOpacity={0.85}
           >
             <LinearGradient
-              colors={Colors.gradient.accent}
+              colors={colors.gradient.accent}
               style={styles.mainBtnGrad}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
               <View style={styles.mainIconCircle}>
-                <Ionicons name="map" size={28} color={Colors.white} />
+                <Ionicons name="map" size={28} color={colors.white} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.mainBtnTitle}>Find Pharmacies Near Me</Text>
                 <Text style={styles.mainBtnSub}>Opens Google Maps with nearby pharmacies</Text>
               </View>
-              <Ionicons name="open-outline" size={20} color={Colors.whiteMuted} />
+              <Ionicons name="open-outline" size={20} color={colors.whiteMuted} />
             </LinearGradient>
           </TouchableOpacity>
         )}
@@ -154,7 +156,7 @@ export default function StoresScreen() {
                   activeOpacity={0.7}
                 >
                   <View style={styles.gridIconCircle}>
-                    <Ionicons name={a.icon} size={24} color={Colors.primary} />
+                    <Ionicons name={a.icon} size={24} color={colors.primary} />
                   </View>
                   <Text style={styles.gridTitle}>{a.title}</Text>
                   <Text style={styles.gridSub}>{a.sub}</Text>
@@ -168,7 +170,7 @@ export default function StoresScreen() {
         {!loading && !locError && (
           <View style={styles.infoBox}>
             <View style={styles.infoHeader}>
-              <Ionicons name="information-circle" size={20} color={Colors.primary} />
+              <Ionicons name="information-circle" size={20} color={colors.primary} />
               <Text style={styles.infoTitle}>How it works</Text>
             </View>
             <Text style={styles.infoText}>
