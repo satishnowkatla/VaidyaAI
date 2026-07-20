@@ -68,8 +68,8 @@ export default function ScanScreen({ navigation }) {
       if (!medicineName) {
         setLoading(false);
         Alert.alert(
-          "Not detected",
-          "Could not read medicine name. Please try again with better lighting.",
+          "Not Detected",
+          "Could not read the medicine name. Please try again with better lighting and hold the camera steady.",
           [{ text: "OK" }],
         );
         return;

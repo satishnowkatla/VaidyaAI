@@ -5,31 +5,43 @@ import { FDA_SYNONYMS } from "../data/fdaSynonyms";
 
 const OCR_API_KEY = process.env.EXPO_PUBLIC_OCR_API_KEY;
 
-export const scanMedicineImage = async (base64Image) => {
-  try {
-    const compressedBase64 = base64Image.substring(
-      0,
-      API_CONFIG.ocr.maxBase64Length,
-    );
+const ocrRequest = (base64Image) =>
+  new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", API_CONFIG.ocr.baseUrl, true);
+    xhr.timeout = 30000;
 
     const formData = new FormData();
     formData.append("apikey", OCR_API_KEY);
-    formData.append(
-      "base64Image",
-      `data:image/jpeg;base64,${compressedBase64}`,
-    );
+    formData.append("base64Image", `data:image/jpeg;base64,${base64Image}`);
     formData.append("language", API_CONFIG.ocr.language);
     formData.append("isOverlayRequired", "false");
     formData.append("detectOrientation", "true");
     formData.append("scale", "true");
     formData.append("OCREngine", API_CONFIG.ocr.ocrEngine);
 
-    const response = await fetch(API_CONFIG.ocr.baseUrl, {
-      method: "POST",
-      body: formData,
-    });
+    xhr.onload = () => {
+      try {
+        resolve(JSON.parse(xhr.responseText));
+      } catch {
+        reject(new Error("Invalid OCR response"));
+      }
+    };
+    xhr.onerror = () => reject(new Error("OCR request failed"));
+    xhr.ontimeout = () => reject(new Error("OCR request timed out"));
+    xhr.send(formData);
+  });
 
-    const result = await response.json();
+export const scanMedicineImage = async (base64Image) => {
+  if (!OCR_API_KEY) return null;
+
+  try {
+    const compressedBase64 = base64Image.substring(
+      0,
+      API_CONFIG.ocr.maxBase64Length,
+    );
+
+    const result = await ocrRequest(compressedBase64);
 
     if (result.IsErroredOnProcessing) return null;
 
