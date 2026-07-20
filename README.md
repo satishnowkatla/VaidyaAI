@@ -1,50 +1,155 @@
-# Welcome to your Expo app 👋
+# VaidyaAI
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Smart Medicine Scanner** — Identify medicines instantly by scanning medicine strips with your camera.
 
-## Get started
+Built with React Native + Expo. Supports English and Telugu.
 
-1. Install dependencies
+---
 
+## Features
+
+- **Camera Scan** — Point your camera at any medicine strip to identify it
+- **Gallery Import** — Pick a medicine photo from your gallery
+- **Medicine Info** — Get uses, dosage, side effects, and warnings
+- **Nearby Stores** — Find pharmacies, medical stores, hospitals, and doctors via Google Maps
+- **Medicine Library** — Browse 12 common medicines with full details
+- **Bilingual** — Toggle between English and Telugu
+- **Share** — Share medicine info with anyone
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React Native + Expo SDK 54 |
+| Navigation | React Navigation (Bottom Tabs + Stack) |
+| OCR | OCR.space API (free tier) |
+| Drug Database | OpenFDA API + Local DB (25 medicines) |
+| Camera | expo-camera |
+| Location | expo-location |
+| Language | React Context i18n (EN/Te) |
+
+---
+
+## Project Structure
+
+```
+VaidyaAI/
+├── app/
+│   └── _layout.tsx                 # Entry point
+├── src/
+│   ├── components/
+│   │   └── MedicalDisclaimer.js    # Reusable UI components
+│   ├── constants/
+│   │   ├── colors.js               # All color tokens (zero hardcodes)
+│   │   └── config.js               # App + API configuration
+│   ├── context/
+│   │   └── LanguageContext.js       # Language provider
+│   ├── data/
+│   │   ├── fdaSynonyms.js          # Brand name → generic mapping
+│   │   ├── libraryMedicines.js     # Library screen medicine data
+│   │   └── medicineDatabase.js     # 25 medicines local database
+│   ├── i18n/
+│   │   ├── en.js                   # English translations
+│   │   └── te.js                   # Telugu translations
+│   ├── navigation/
+│   │   └── AppNavigator.js         # All routes
+│   ├── screens/
+│   │   ├── HomeScreen.js           # Dashboard with scan hero
+│   │   ├── LibraryScreen.js        # Searchable medicine catalog
+│   │   ├── ResultScreen.js         # Medicine detail view
+│   │   ├── ScanHistoryScreen.js    # Past scans list
+│   │   ├── ScanScreen.js           # Camera + OCR scanner
+│   │   ├── SettingsScreen.js       # Preferences + profile
+│   │   └── StoresScreen.js         # Nearby store finder
+│   ├── services/
+│   │   └── medicineService.js      # OCR + FDA API integration
+│   └── utils/
+│       └── textUtils.js            # Text processing utilities
+├── .env                            # API keys (gitignored)
+├── .env.example                    # Template for setup
+├── SECURITY.md                     # Security policy
+├── eas.json                        # EAS Build config
+├── app.json                        # Expo config
+└── package.json
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
+- Android Studio or Xcode
+
+### Setup
+
+1. Clone the repo
+   ```bash
+   git clone https://github.com/satishnowkatla/VaidyaAI.git
+   cd VaidyaAI
+   ```
+
+2. Install dependencies
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Set up environment variables
+   ```bash
+   cp .env.example .env
+   ```
+   Get a free API key from [OCR.space](https://ocr.space/ocrapi/freeapi) and add it to `.env`:
+   ```
+   EXPO_PUBLIC_OCR_API_KEY=your_key_here
+   ```
 
+4. Start the app
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. Scan the QR code with Expo Go (Android) or Camera (iOS)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## How It Works
 
-## Get a fresh project
+1. User opens the **Scan** tab and points camera at a medicine strip
+2. App captures the image and sends it to **OCR.space** for text extraction
+3. Extracted text is parsed to identify the medicine name
+4. App checks the **local database** (25 medicines) first
+5. Falls back to **OpenFDA API** if not found locally
+6. Displays full medicine info: uses, dosage, side effects, warnings
 
-When you're ready, run:
+---
 
+## Environment Variables
+
+| Variable | Description | Where to get |
+|----------|-------------|--------------|
+| `EXPO_PUBLIC_OCR_API_KEY` | OCR.space API key | [ocr.space/ocrapi/freeapi](https://ocr.space/ocrapi/freeapi) |
+
+---
+
+## Building for Production
+
+### Android
 ```bash
-npm run reset-project
+npx eas build --platform android --profile production
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### iOS
+```bash
+npx eas build --platform ios --profile production
+```
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## License
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Made in India
