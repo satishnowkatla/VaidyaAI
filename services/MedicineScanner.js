@@ -1,4 +1,15 @@
-const OCR_API_KEY = "K82215461188957";
+const OCR_API_KEY = process.env.EXPO_PUBLIC_OCR_API_KEY;
+
+const sanitizeText = (text) => {
+  if (!text || typeof text !== "string") return "";
+  return text
+    .replace(/[<>]/g, "")
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
+    .replace(/javascript:/gi, "")
+    .replace(/on\w+=/gi, "")
+    .trim()
+    .substring(0, 5000);
+};
 
 export const scanMedicineImage = async (base64Image) => {
   try {
@@ -30,7 +41,7 @@ export const scanMedicineImage = async (base64Image) => {
       return null;
     }
 
-    const text = result.ParsedResults?.[0]?.ParsedText || "";
+    const text = sanitizeText(result.ParsedResults?.[0]?.ParsedText || "");
     console.log("Detected text:", text.substring(0, 300));
 
     if (!text || text.trim().length === 0) {
