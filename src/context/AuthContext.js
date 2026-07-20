@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 const USER_KEY = "vaidyaai_user";
 const AuthContext = createContext();
 
-const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "YOUR_GOOGLE_WEB_CLIENT_ID";
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 
 const discovery = {
   authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
@@ -27,13 +27,16 @@ export const AuthProvider = ({ children }) => {
       .finally(() => setLoading(false));
   }, []);
 
+  const redirectUri = AuthSession.makeRedirectUri();
+
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: GOOGLE_WEB_CLIENT_ID,
-      redirectUri: AuthSession.makeRedirectUri({ scheme: "vaidyaai" }),
+      redirectUri,
       scopes: ["profile", "email"],
       usePKCE: true,
       nonce: Crypto.randomUUID(),
+      shouldAutoExchangeCode: true,
     },
     discovery
   );
@@ -41,7 +44,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (response?.type === "success") {
       const { authentication } = response;
-      fetchUserInfo(authentication.accessToken);
+      if (authentication?.accessToken) {
+        fetchUserInfo(authentication.accessToken);
+      }
     }
   }, [response]);
 
@@ -58,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         photo: data.picture,
       };
       setUser(userData);
-      AsyncStorage.setItem(USER_KEY, JSON.stringify(userData)).catch(() => {});
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(userData));
     } catch (e) {
       console.warn("Failed to fetch user info:", e);
     }
@@ -79,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, loginWithGoogle, logout, request }}
+      value={{ user, loading, loginWithGoogle, logout, request, redirectUri }}
     >
       {children}
     </AuthContext.Provider>
