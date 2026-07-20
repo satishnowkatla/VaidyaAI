@@ -1,6 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
   Alert,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -11,271 +14,172 @@ import {
 } from "react-native";
 import Colors from "../constants/colors";
 import { APP_CONFIG } from "../constants/config";
+import { Radius, Shadow, Spacing } from "../constants/spacing";
+import { Typography } from "../constants/typography";
 import { useLanguage } from "../context/LanguageContext";
+
+const settingGroups = [
+  {
+    titleKey: { en: "Preferences", te: "ప్రాధాన్యతలు" },
+    items: [
+      { key: "language", icon: "globe", iconBg: "primaryBg", label: { en: "Language", te: "భాష" }, type: "lang" },
+      { key: "notifications", icon: "notifications", iconBg: "tagGreenBg", label: { en: "Notifications", te: "నోటిఫికేషన్లు" }, desc: { en: "Expiry alerts", te: "గడువు హెచ్చరికలు" }, type: "toggle" },
+      { key: "darkMode", icon: "moon", iconBg: "tagOrangeBg", label: { en: "Dark Mode", te: "థీమ్" }, desc: { en: "Light mode", te: "లైట్ మోడ్" }, type: "toggle" },
+    ],
+  },
+  {
+    titleKey: { en: "App Info", te: "యాప్ సమాచారం" },
+    items: [
+      { key: "history", icon: "time", iconBg: "primaryBg", label: { en: "Scan History", te: "స్కాన్ చరిత్ర" }, desc: { en: "View all past scans", te: "అన్ని స్కాన్లు చూడండి" }, type: "nav" },
+      { key: "about", icon: "information-circle", iconBg: "tagOrangeBg", label: { en: `About ${APP_CONFIG.name}`, te: `${APP_CONFIG.name} గురించి` }, desc: { en: `Version ${APP_CONFIG.version}`, te: `Version ${APP_CONFIG.version}` }, type: "nav" },
+      { key: "privacy", icon: "shield-checkmark", iconBg: "primaryBg", label: { en: "Privacy Policy", te: "గోప్యతా విధానం" }, desc: { en: "Read our policy", te: "మా విధానం చదవండి" }, type: "nav" },
+    ],
+  },
+];
 
 export default function SettingsScreen({ navigation }) {
   const { lang, toggleLanguage } = useLanguage();
+  const isTE = lang === "te";
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
-  const isTE = lang === "te";
-
-  const handleEditProfile = () => {
-    Alert.alert(
-      isTE ? "ప్రొఫైల్ సవరణ" : "Edit Profile",
-      isTE
-        ? "ప్రొఫైల్ సవరణ త్వరలో అందుబాటులో ఉంటుంది"
-        : "Profile editing coming soon!",
-      [{ text: "OK" }],
-    );
-  };
-
-  const handleScanHistory = () => {
-    navigation.navigate("ScanHistory");
-  };
-
-  const handleAbout = () => {
-    Alert.alert(
-      `About ${APP_CONFIG.name}`,
-      `${APP_CONFIG.name} - ${APP_CONFIG.description}\nVersion ${APP_CONFIG.version}\n\nIdentify medicines instantly by scanning medicine strips with your camera.\n\nMade with ❤️ in ${APP_CONFIG.madeIn}`,
-      [{ text: "OK" }],
-    );
-  };
-
-  const handlePrivacyPolicy = () => {
-    Alert.alert(
-      isTE ? "గోప్యతా విధానం" : "Privacy Policy",
-      `${APP_CONFIG.name} Privacy Policy\n\n` +
-        "1. We do not collect personal data.\n\n" +
-        "2. Camera images are processed locally and sent only to OCR API for text extraction.\n\n" +
-        "3. No images are stored on our servers.\n\n" +
-        "4. Location data is used only to find nearby stores and is not stored.\n\n" +
-        `5. For questions, contact: ${APP_CONFIG.supportEmail}`,
-      [{ text: "OK" }],
-    );
+  const handlePress = (key) => {
+    switch (key) {
+      case "history": navigation.navigate("ScanHistory"); break;
+      case "about":
+        Alert.alert(
+          `About ${APP_CONFIG.name}`,
+          `${APP_CONFIG.name} - ${APP_CONFIG.description}\nVersion ${APP_CONFIG.version}\n\nIdentify medicines instantly by scanning medicine strips with your camera.\n\nMade with ❤️ in ${APP_CONFIG.madeIn}`,
+          [{ text: "OK" }],
+        );
+        break;
+      case "privacy":
+        Alert.alert(
+          isTE ? "గోప్యతా విధానం" : "Privacy Policy",
+          `${APP_CONFIG.name} Privacy Policy\n\n` +
+            "1. We do not collect personal data.\n\n" +
+            "2. Camera images are processed locally and sent only to OCR API for text extraction.\n\n" +
+            "3. No images are stored on our servers.\n\n" +
+            "4. Location data is used only to find nearby stores and is not stored.\n\n" +
+            `5. For questions, contact: ${APP_CONFIG.supportEmail}`,
+          [{ text: "OK" }],
+        );
+        break;
+      default: break;
+    }
   };
 
   const handleLogout = () => {
     Alert.alert(
       isTE ? "లాగ్అవుట్" : "Logout",
-      isTE
-        ? "మీరు నిజంగా లాగ్అవుట్ చేయాలనుకుంటున్నారా?"
-        : "Are you sure you want to logout?",
+      isTE ? "మీరు నిజంగా లాగ్అవుట్ చేయాలనుకుంటున్నారా?" : "Are you sure you want to logout?",
       [
         { text: isTE ? "రద్దు" : "Cancel", style: "cancel" },
         {
           text: isTE ? "లాగ్అవుట్" : "Logout",
           style: "destructive",
-          onPress: () => {
-            Alert.alert(
-              isTE ? "లాగ్అవుట్ అయింది" : "Logged Out",
-              isTE
-                ? "మీరు విజయవంతంగా లాగ్అవుట్ అయ్యారు"
-                : "You have been logged out successfully.",
-            );
-          },
+          onPress: () => Alert.alert(isTE ? "లాగ్అవుట్ అయింది" : "Logged Out", isTE ? "మీరు విజయవంతంగా లాగ్అవుట్ అయ్యారు" : "You have been logged out successfully."),
         },
       ],
     );
   };
 
-  const handleDarkMode = (value) => {
-    setDarkMode(value);
-    if (value) {
-      Alert.alert(
-        "Dark Mode",
-        "Dark mode will be available in the next update!",
-      );
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" />
 
-      {/* PROFILE HERO */}
-      <View style={styles.profileHero}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>VA</Text>
+      {/* ── Profile Hero ── */}
+      <LinearGradient
+        colors={Colors.gradient.hero}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.profileHero}
+      >
+        <View style={styles.avatarRing}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>VA</Text>
+          </View>
         </View>
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>{APP_CONFIG.name} User</Text>
           <Text style={styles.profileEmail}>user@vaidyaai.app</Text>
-          <Text style={styles.profileLocation}>
-            📍 Vijayawada, Andhra Pradesh
-          </Text>
+          <View style={styles.profileLocation}>
+            <Ionicons name="location" size={12} color={Colors.whiteFaint} />
+            <Text style={styles.profileLocText}>Vijayawada, Andhra Pradesh</Text>
+          </View>
         </View>
-        <TouchableOpacity style={styles.editBtn} onPress={handleEditProfile}>
+        <TouchableOpacity style={styles.editBtn} activeOpacity={0.7}>
+          <Ionicons name="pencil" size={14} color={Colors.white} />
           <Text style={styles.editBtnText}>{isTE ? "మార్చు" : "Edit"}</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* PREFERENCES GROUP */}
-        <Text style={styles.groupLabel}>
-          {isTE ? "ప్రాధాన్యతలు" : "Preferences"}
-        </Text>
-        <View style={styles.group}>
-          {/* LANGUAGE */}
-          <View style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: Colors.primaryBg }]}>
-              <Text style={styles.settingEmoji}>🌐</Text>
+        {settingGroups.map((group, gi) => (
+          <View key={gi}>
+            <Text style={styles.groupLabel}>
+              {isTE ? group.titleKey.te : group.titleKey.en}
+            </Text>
+            <View style={styles.groupCard}>
+              {group.items.map((item, ii) => (
+                <React.Fragment key={item.key}>
+                  {ii > 0 && <View style={styles.divider} />}
+                  <TouchableOpacity
+                    style={styles.row}
+                    onPress={() => item.type === "lang" ? toggleLanguage() : handlePress(item.key)}
+                    activeOpacity={item.type === "toggle" ? 1 : 0.6}
+                  >
+                    <View style={[styles.rowIcon, { backgroundColor: Colors[item.iconBg] }]}>
+                      <Ionicons name={item.icon} size={18} color={Colors[item.iconBg === "primaryBg" ? "primary" : item.iconBg === "tagGreenBg" ? "tagGreenText" : "tagOrangeText"]} />
+                    </View>
+                    <View style={styles.rowInfo}>
+                      <Text style={styles.rowTitle}>
+                        {isTE ? item.label.te : item.label.en}
+                      </Text>
+                      {item.desc && (
+                        <Text style={styles.rowDesc}>
+                          {isTE ? item.desc.te : item.desc.en}
+                        </Text>
+                      )}
+                    </View>
+                    {item.type === "toggle" && (
+                      <Switch
+                        value={item.key === "notifications" ? notifications : darkMode}
+                        onValueChange={item.key === "notifications" ? setNotifications : (v) => { setDarkMode(v); if (v) Alert.alert("Dark Mode", "Dark mode will be available in the next update!"); }}
+                        trackColor={{ false: Colors.switchTrackOff, true: Colors.switchTrackOn }}
+                        thumbColor={item.key === "notifications" ? (notifications ? Colors.switchThumbOn : Colors.switchThumbOff) : (darkMode ? Colors.switchThumbOn : Colors.switchThumbOff)}
+                      />
+                    )}
+                    {item.type === "lang" && (
+                      <View style={styles.langToggle}>
+                        <View style={[styles.langOpt, !isTE && styles.langOptActive]}>
+                          <Text style={[styles.langOptText, !isTE && styles.langOptTextActive]}>EN</Text>
+                        </View>
+                        <View style={[styles.langOpt, isTE && styles.langOptActive]}>
+                          <Text style={[styles.langOptText, isTE && styles.langOptTextActive]}>తె</Text>
+                        </View>
+                      </View>
+                    )}
+                    {item.type === "nav" && (
+                      <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+                    )}
+                  </TouchableOpacity>
+                </React.Fragment>
+              ))}
             </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>
-                {isTE ? "భాష" : "Language"}
-              </Text>
-              <Text style={styles.settingDesc}>
-                {isTE ? "ఇప్పుడు: తెలుగు" : "Currently: English"}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.langToggle}
-              onPress={toggleLanguage}
-            >
-              <View style={[styles.langOpt, !isTE && styles.langOptActive]}>
-                <Text
-                  style={[
-                    styles.langOptText,
-                    !isTE && styles.langOptTextActive,
-                  ]}
-                >
-                  EN
-                </Text>
-              </View>
-              <View style={[styles.langOpt, isTE && styles.langOptActive]}>
-                <Text
-                  style={[styles.langOptText, isTE && styles.langOptTextActive]}
-                >
-                  తె
-                </Text>
-              </View>
-            </TouchableOpacity>
           </View>
+        ))}
 
-          <View style={styles.divider} />
-
-          {/* NOTIFICATIONS */}
-          <View style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: Colors.tagGreenBg }]}>
-              <Text style={styles.settingEmoji}>🔔</Text>
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>
-                {isTE ? "నోటిఫికేషన్లు" : "Notifications"}
-              </Text>
-              <Text style={styles.settingDesc}>
-                {isTE ? "గడువు హెచ్చరికలు" : "Expiry alerts"}
-              </Text>
-            </View>
-            <Switch
-              value={notifications}
-              onValueChange={setNotifications}
-              trackColor={{ false: Colors.switchTrackOff, true: Colors.switchTrackOn }}
-              thumbColor={notifications ? Colors.switchThumbOn : Colors.switchThumbOff}
-            />
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* DARK MODE */}
-          <View style={styles.settingRow}>
-            <View style={[styles.settingIcon, { backgroundColor: Colors.tagOrangeBg }]}>
-              <Text style={styles.settingEmoji}>🌙</Text>
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>
-                {isTE ? "థీమ్" : "Dark Mode"}
-              </Text>
-              <Text style={styles.settingDesc}>
-                {darkMode
-                  ? isTE
-                    ? "డార్క్ మోడ్ ఆన్"
-                    : "Dark mode on"
-                  : isTE
-                    ? "లైట్ మోడ్"
-                    : "Light mode"}
-              </Text>
-            </View>
-            <Switch
-              value={darkMode}
-              onValueChange={handleDarkMode}
-              trackColor={{ false: Colors.switchTrackOff, true: Colors.switchTrackOn }}
-              thumbColor={darkMode ? Colors.switchThumbOn : Colors.switchThumbOff}
-            />
-          </View>
-        </View>
-
-        {/* APP INFO GROUP */}
-        <Text style={styles.groupLabel}>
-          {isTE ? "యాప్ సమాచారం" : "App Info"}
-        </Text>
-        <View style={styles.group}>
-          <TouchableOpacity
-            style={styles.settingRow}
-            onPress={handleScanHistory}
-          >
-            <View style={[styles.settingIcon, { backgroundColor: Colors.primaryBg }]}>
-              <Text style={styles.settingEmoji}>📋</Text>
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>
-                {isTE ? "స్కాన్ చరిత్ర" : "Scan History"}
-              </Text>
-              <Text style={styles.settingDesc}>
-                {isTE ? "అన్ని స్కాన్లు చూడండి" : "View all past scans"}
-              </Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity style={styles.settingRow} onPress={handleAbout}>
-            <View style={[styles.settingIcon, { backgroundColor: Colors.tagOrangeBg }]}>
-              <Text style={styles.settingEmoji}>ℹ️</Text>
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>
-                {isTE ? `${APP_CONFIG.name} గురించి` : `About ${APP_CONFIG.name}`}
-              </Text>
-              <Text style={styles.settingDesc}>Version {APP_CONFIG.version}</Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.settingRow}
-            onPress={handlePrivacyPolicy}
-          >
-            <View style={[styles.settingIcon, { backgroundColor: Colors.primaryBg }]}>
-              <Text style={styles.settingEmoji}>🔒</Text>
-            </View>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>
-                {isTE ? "గోప్యతా విధానం" : "Privacy Policy"}
-              </Text>
-              <Text style={styles.settingDesc}>
-                {isTE ? "మా విధానం చదవండి" : "Read our policy"}
-              </Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* LOGOUT BUTTON */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>
-            🚪 {isTE ? "లాగ్అవుట్" : "Logout"}
-          </Text>
+        {/* ── Logout ── */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+          <Ionicons name="log-out" size={18} color={Colors.tagRedText} />
+          <Text style={styles.logoutText}>{isTE ? "లాగ్అవుట్" : "Logout"}</Text>
         </TouchableOpacity>
 
-        {/* APP VERSION */}
+        {/* ── Version ── */}
         <Text style={styles.versionText}>
           {APP_CONFIG.name} v{APP_CONFIG.version} · Made in {APP_CONFIG.madeIn} 🇮🇳
         </Text>
@@ -286,109 +190,111 @@ export default function SettingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+
   profileHero: {
-    backgroundColor: Colors.primary,
-    paddingTop: 54,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + Spacing.xl : Spacing.xxxxl + Spacing.lg,
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.xl,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: Spacing.md,
+    borderBottomLeftRadius: Radius.xxl,
+    borderBottomRightRadius: Radius.xxl,
   },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.whiteTransparent,
-    borderWidth: 2,
-    borderColor: Colors.whiteGhost,
+  avatarRing: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    borderWidth: 2.5,
+    borderColor: "rgba(255,255,255,0.35)",
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontSize: 20, fontWeight: "800", color: Colors.white },
+  avatar: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { ...Typography.h1, color: Colors.white },
   profileInfo: { flex: 1 },
-  profileName: { fontSize: 16, fontWeight: "800", color: Colors.white },
-  profileEmail: {
-    fontSize: 11,
-    color: Colors.whiteMuted,
-    marginTop: 2,
-  },
-  profileLocation: {
-    fontSize: 10,
-    color: Colors.whiteFaint,
-    marginTop: 2,
-  },
+  profileName: { ...Typography.h3, color: Colors.white },
+  profileEmail: { ...Typography.caption, color: Colors.whiteMuted, marginTop: 2 },
+  profileLocation: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
+  profileLocText: { ...Typography.micro, color: Colors.whiteFaint },
   editBtn: {
-    backgroundColor: Colors.whiteBtnBg,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-  },
-  editBtnText: { fontSize: 12, fontWeight: "700", color: Colors.white },
-  scrollContent: { padding: 14, paddingBottom: 100 },
-  groupLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: Colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    marginBottom: 8,
-    marginTop: 6,
-    paddingLeft: 4,
-  },
-  group: {
-    backgroundColor: Colors.surface,
-    borderRadius: 17,
-    overflow: "hidden",
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  settingRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    padding: 13,
+    gap: 5,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: Radius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
   },
-  settingIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 11,
+  editBtnText: { ...Typography.captionBold, color: Colors.white },
+
+  scrollContent: { padding: Spacing.lg, paddingBottom: 100 },
+
+  groupLabel: {
+    ...Typography.label,
+    color: Colors.textMuted,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
+    paddingLeft: Spacing.xs,
+  },
+  groupCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.xl,
+    overflow: "hidden",
+    ...Shadow.sm,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    padding: Spacing.lg,
+  },
+  rowIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: Radius.md,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
-  settingEmoji: { fontSize: 18 },
-  settingInfo: { flex: 1 },
-  settingTitle: { fontSize: 13, fontWeight: "700", color: Colors.textDark },
-  settingDesc: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
-  divider: { height: 1, backgroundColor: Colors.border, marginLeft: 60 },
+  rowInfo: { flex: 1 },
+  rowTitle: { ...Typography.bodyBold, color: Colors.textPrimary },
+  rowDesc: { ...Typography.micro, color: Colors.textMuted, marginTop: 2 },
+  divider: { height: 1, backgroundColor: Colors.borderLight, marginLeft: 68 },
+
   langToggle: {
     flexDirection: "row",
     backgroundColor: Colors.background,
-    borderRadius: 20,
+    borderRadius: Radius.pill,
     padding: 3,
-    gap: 2,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
   },
-  langOpt: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 },
+  langOpt: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: Radius.pill },
   langOptActive: { backgroundColor: Colors.primary },
   langOptText: { fontSize: 11, fontWeight: "800", color: Colors.textMuted },
   langOptTextActive: { color: Colors.white },
-  chevron: { fontSize: 20, color: Colors.textMuted },
+
   logoutBtn: {
-    backgroundColor: Colors.tagRedBg,
-    borderRadius: 15,
-    padding: 14,
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: Colors.tagRedBg,
+    borderRadius: Radius.xl,
+    padding: Spacing.lg,
+    marginTop: Spacing.lg,
   },
-  logoutText: { fontSize: 14, fontWeight: "800", color: Colors.tagRedText },
+  logoutText: { ...Typography.button, color: Colors.tagRedText },
   versionText: {
     textAlign: "center",
-    fontSize: 11,
+    ...Typography.caption,
     color: Colors.textMuted,
-    marginTop: 16,
+    marginTop: Spacing.xl,
   },
 });

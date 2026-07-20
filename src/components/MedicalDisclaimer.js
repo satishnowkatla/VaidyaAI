@@ -1,26 +1,51 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../constants/colors";
+import { Radius, Shadow, Spacing } from "../constants/spacing";
+import { Typography } from "../constants/typography";
 
 export default function MedicalDisclaimer({ visible, onAccept }) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.card}>
-          <Text style={styles.icon}>⚕️</Text>
+          {/* ── Gradient Accent Top ── */}
+          <LinearGradient
+            colors={Colors.gradient.primary}
+            style={styles.accentTop}
+          />
+
+          <View style={styles.iconCircle}>
+            <Ionicons name="medical" size={32} color={Colors.primary} />
+          </View>
           <Text style={styles.title}>Medical Disclaimer</Text>
           <Text style={styles.body}>
             VaidyaAI provides medicine information for educational purposes
             only. The information is not a substitute for professional medical
             advice, diagnosis, or treatment.
           </Text>
-          <Text style={styles.warn}>
-            Always consult a qualified healthcare provider before making any
-            medical decisions. Never disregard professional medical advice or
-            delay seeking it because of information from this app.
-          </Text>
-          <TouchableOpacity style={styles.btn} onPress={onAccept}>
-            <Text style={styles.btnText}>I Understand</Text>
+          <View style={styles.warnCard}>
+            <Ionicons name="warning" size={16} color={Colors.tagRedText} />
+            <Text style={styles.warn}>
+              Always consult a qualified healthcare provider before making any
+              medical decisions. Never disregard professional medical advice or
+              delay seeking it because of information from this app.
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={onAccept}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={Colors.gradient.primary}
+              style={styles.btnGrad}
+            >
+              <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+              <Text style={styles.btnText}>I Understand</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </View>
@@ -34,44 +59,73 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.overlay,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    padding: Spacing.xl,
   },
   card: {
     backgroundColor: Colors.surface,
-    borderRadius: 22,
-    padding: 28,
+    borderRadius: Radius.xxl,
     width: "100%",
     alignItems: "center",
+    overflow: "hidden",
+    ...Shadow.xl,
   },
-  icon: { fontSize: 44, marginBottom: 12 },
+  accentTop: {
+    width: "100%",
+    height: 4,
+  },
+  iconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.primaryBg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.xxl,
+    marginBottom: Spacing.md,
+  },
   title: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: Colors.textDark,
-    marginBottom: 14,
+    ...Typography.h1,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
   },
   body: {
-    fontSize: 13,
+    ...Typography.body,
     color: Colors.textMedium,
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 12,
+    lineHeight: 22,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+  },
+  warnCard: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+    backgroundColor: Colors.tagRedBg,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.xl,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.tagRedText,
   },
   warn: {
-    fontSize: 12,
+    ...Typography.caption,
     color: Colors.tagRedText,
-    textAlign: "center",
+    flex: 1,
     lineHeight: 18,
     fontWeight: "600",
-    marginBottom: 20,
   },
   btn: {
-    backgroundColor: Colors.primary,
-    borderRadius: 14,
-    paddingHorizontal: 32,
-    paddingVertical: 14,
     width: "100%",
-    alignItems: "center",
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.xl,
   },
-  btnText: { color: Colors.white, fontSize: 15, fontWeight: "800" },
+  btnGrad: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: Radius.lg,
+    paddingVertical: 14,
+  },
+  btnText: { ...Typography.button, color: Colors.white },
 });

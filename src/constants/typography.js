@@ -1,0 +1,20 @@
+export const Typography = {
+  display: { fontSize: 28, fontWeight: "900", letterSpacing: -0.5 },
+  h1: { fontSize: 22, fontWeight: "800", letterSpacing: -0.3 },
+  h2: { fontSize: 17, fontWeight: "700", letterSpacing: -0.2 },
+  h3: { fontSize: 15, fontWeight: "700" },
+  body: { fontSize: 14, fontWeight: "400", lineHeight: 20 },
+  bodyBold: { fontSize: 14, fontWeight: "600" },
+  caption: { fontSize: 12, fontWeight: "500", lineHeight: 17 },
+  captionBold: { fontSize: 12, fontWeight: "700" },
+  micro: { fontSize: 10, fontWeight: "600", letterSpacing: 0.3 },
+  microBold: { fontSize: 10, fontWeight: "800", letterSpacing: 0.3 },
+  label: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  button: { fontSize: 15, fontWeight: "700", letterSpacing: 0.2 },
+  buttonSmall: { fontSize: 13, fontWeight: "700" },
+};

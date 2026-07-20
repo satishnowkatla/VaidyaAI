@@ -1,5 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -9,14 +12,16 @@ import {
   View,
 } from "react-native";
 import Colors from "../constants/colors";
+import { Radius, Shadow, Spacing } from "../constants/spacing";
+import { Typography } from "../constants/typography";
 import { LIBRARY_MEDICINES } from "../data/libraryMedicines";
 
 const filters = [
-  { label: "All", value: "All" },
-  { label: "Tablet", value: "Tablet" },
-  { label: "Capsule", value: "Capsule" },
-  { label: "Syrup", value: "Syrup" },
-  { label: "Injection", value: "Injection" },
+  { label: "All", value: "All", icon: "grid" },
+  { label: "Tablet", value: "Tablet", icon: "medical" },
+  { label: "Capsule", value: "Capsule", icon: "ellipse" },
+  { label: "Syrup", value: "Syrup", icon: "water" },
+  { label: "Injection", value: "Injection", icon: "fitness" },
 ];
 
 export default function LibraryScreen({ navigation }) {
@@ -31,26 +36,33 @@ export default function LibraryScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
+      <StatusBar barStyle="light-content" />
 
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Medicine Library</Text>
-          <Text style={styles.headerSub}>200+ medicines available</Text>
+      {/* ── Gradient Header ── */}
+      <LinearGradient
+        colors={Colors.gradient.hero}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.headerTitle}>Medicine Library</Text>
+            <Text style={styles.headerSub}>200+ medicines available</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.scanBtn}
+            onPress={() => navigation.navigate("Scan")}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="camera" size={16} color={Colors.primary} />
+            <Text style={styles.scanBtnText}>Scan</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.scanBtn}
-          onPress={() => navigation.navigate("Scan")}
-        >
-          <Text style={styles.scanBtnText}>📷 Scan</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* SEARCH BAR */}
-      <View style={styles.searchWrap}>
+        {/* ── Search Bar ── */}
         <View style={styles.searchBox}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Ionicons name="search" size={18} color={Colors.textMuted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search medicine name..."
@@ -60,54 +72,63 @@ export default function LibraryScreen({ navigation }) {
           />
           {search.length > 0 && (
             <TouchableOpacity onPress={() => setSearch("")}>
-              <Text style={styles.clearBtn}>✕</Text>
+              <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
-      </View>
+      </LinearGradient>
 
-      {/* FILTER CHIPS */}
+      {/* ── Filter Chips ── */}
       <View style={styles.filterWrap}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterContent}
         >
-          {filters.map((f) => (
-            <TouchableOpacity
-              key={f.value}
-              style={[
-                styles.chip,
-                activeFilter === f.value && styles.chipActive,
-              ]}
-              onPress={() => setActiveFilter(f.value)}
-            >
-              <Text
-                style={[
-                  styles.chipText,
-                  activeFilter === f.value && styles.chipTextActive,
-                ]}
+          {filters.map((f) => {
+            const active = activeFilter === f.value;
+            return (
+              <TouchableOpacity
+                key={f.value}
+                style={[styles.chip, active && styles.chipActive]}
+                onPress={() => setActiveFilter(f.value)}
+                activeOpacity={0.7}
               >
-                {f.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                {active ? (
+                  <LinearGradient
+                    colors={Colors.gradient.primary}
+                    style={styles.chipActiveGrad}
+                  >
+                    <Ionicons name={f.icon} size={12} color={Colors.white} />
+                    <Text style={styles.chipTextActive}>{f.label}</Text>
+                  </LinearGradient>
+                ) : (
+                  <View style={styles.chipInner}>
+                    <Ionicons name={f.icon} size={12} color={Colors.textMuted} />
+                    <Text style={styles.chipText}>{f.label}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
-      {/* COUNT */}
+      {/* ── Count ── */}
       <View style={styles.countRow}>
         <Text style={styles.countText}>{filtered.length} medicines found</Text>
       </View>
 
-      {/* MEDICINE LIST */}
+      {/* ── Medicine List ── */}
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       >
         {filtered.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyIcon}>🔍</Text>
+            <View style={styles.emptyIconCircle}>
+              <Ionicons name="search" size={32} color={Colors.primary} />
+            </View>
             <Text style={styles.emptyText}>No medicines found</Text>
             <Text style={styles.emptySub}>Try a different search term</Text>
           </View>
@@ -115,17 +136,24 @@ export default function LibraryScreen({ navigation }) {
           filtered.map((med) => (
             <TouchableOpacity
               key={med.id}
-              style={styles.medRow}
-              onPress={() => navigation.navigate("Result", { medicine: { name: med.name, uses: med.uses, dosage: med.dosage, sideEffects: med.sideEffects, warnings: med.warnings, category: med.category } })}
+              style={styles.medCard}
+              activeOpacity={0.7}
+              onPress={() =>
+                navigation.navigate("Result", {
+                  medicine: {
+                    name: med.name,
+                    uses: med.uses,
+                    dosage: med.dosage,
+                    sideEffects: med.sideEffects,
+                    warnings: med.warnings,
+                    category: med.category,
+                  },
+                })
+              }
             >
-              {/* ICON */}
-              <View
-                style={[styles.medIconBox, { backgroundColor: med.bgColor }]}
-              >
-                <Text style={styles.medEmoji}>💊</Text>
+              <View style={[styles.medIconBox, { backgroundColor: med.bgColor }]}>
+                <Ionicons name="medical" size={22} color={med.textColor} />
               </View>
-
-              {/* INFO */}
               <View style={styles.medInfo}>
                 <Text style={styles.medName}>{med.name}</Text>
                 <Text style={styles.medDesc}>{med.desc}</Text>
@@ -135,129 +163,133 @@ export default function LibraryScreen({ navigation }) {
                   </Text>
                 </View>
               </View>
-
-              {/* ARROW */}
-              <Text style={styles.arrow}>›</Text>
+              <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
             </TouchableOpacity>
           ))
         )}
+        <View style={{ height: Spacing.xxl }} />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background, paddingTop: 50 },
+  container: { flex: 1, backgroundColor: Colors.background },
+
   header: {
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + Spacing.md : Spacing.xxxxl,
+    paddingBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
+  headerTop: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    marginBottom: Spacing.lg,
   },
-  headerLeft: { flex: 1 },
-  headerTitle: { fontSize: 16, fontWeight: "800", color: Colors.textDark },
-  headerSub: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
+  headerTitle: { ...Typography.h1, color: Colors.white },
+  headerSub: { ...Typography.caption, color: Colors.whiteMuted, marginTop: 2 },
   scanBtn: {
-    backgroundColor: Colors.primaryBg,
-    borderRadius: 12,
-    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    paddingHorizontal: 14,
     paddingVertical: 8,
   },
-  scanBtnText: { fontSize: 12, fontWeight: "700", color: Colors.primary },
-  searchWrap: {
-    backgroundColor: Colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
+  scanBtnText: { ...Typography.buttonSmall, color: Colors.primary },
+
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.background,
-    borderRadius: 13,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    gap: 8,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    gap: Spacing.sm,
+    ...Shadow.sm,
   },
-  searchIcon: { fontSize: 14 },
-  searchInput: { flex: 1, fontSize: 13, color: Colors.textDark },
-  clearBtn: {
-    fontSize: 14,
-    color: Colors.textMuted,
-    fontWeight: "700",
-    paddingHorizontal: 4,
-  },
-  filterWrap: {
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
+  searchInput: { flex: 1, ...Typography.body, color: Colors.textPrimary },
+
+  filterWrap: { borderBottomWidth: 1, borderBottomColor: Colors.borderLight },
   filterContent: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    gap: 8,
-    flexDirection: "row",
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
   },
   chip: {
+    borderRadius: Radius.pill,
+    overflow: "hidden",
+  },
+  chipActive: {},
+  chipActiveGrad: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
     paddingHorizontal: 16,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
+  },
+  chipInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
     borderWidth: 1.5,
     borderColor: Colors.border,
     backgroundColor: Colors.surface,
   },
-  chipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  chipText: { fontSize: 12, fontWeight: "700", color: Colors.textMedium },
-  chipTextActive: { color: Colors.white },
-  countRow: { paddingHorizontal: 16, paddingVertical: 8 },
-  countText: { fontSize: 11, color: Colors.textMuted, fontWeight: "600" },
-  listContent: { paddingHorizontal: 14, paddingBottom: 90 },
-  medRow: {
+  chipText: { ...Typography.captionBold, color: Colors.textMedium },
+  chipTextActive: { ...Typography.captionBold, color: Colors.white },
+
+  countRow: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm },
+  countText: { ...Typography.micro, color: Colors.textMuted },
+
+  listContent: { paddingHorizontal: Spacing.lg },
+
+  medCard: {
     backgroundColor: Colors.surface,
-    borderRadius: 15,
-    padding: 12,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 9,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    gap: Spacing.md,
+    marginBottom: Spacing.sm,
+    ...Shadow.sm,
   },
   medIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 13,
+    width: 48,
+    height: 48,
+    borderRadius: Radius.md,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
-  medEmoji: { fontSize: 22 },
   medInfo: { flex: 1 },
-  medName: { fontSize: 13, fontWeight: "700", color: Colors.textDark },
-  medDesc: { fontSize: 10, color: Colors.textMedium, marginTop: 2 },
+  medName: { ...Typography.captionBold, color: Colors.textPrimary, fontSize: 13 },
+  medDesc: { ...Typography.micro, color: Colors.textMedium, marginTop: 2 },
   catTag: {
     alignSelf: "flex-start",
-    marginTop: 5,
+    marginTop: 6,
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 7,
+    paddingVertical: 3,
+    borderRadius: Radius.xs,
   },
-  catText: { fontSize: 10, fontWeight: "700" },
-  arrow: { fontSize: 22, color: Colors.textMuted, fontWeight: "300" },
+  catText: { ...Typography.microBold },
+
   emptyBox: { alignItems: "center", paddingTop: 80 },
-  emptyIcon: { fontSize: 48 },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: Colors.textDark,
-    marginTop: 14,
+  emptyIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.primaryBg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.lg,
   },
-  emptySub: { fontSize: 12, color: Colors.textMuted, marginTop: 6 },
+  emptyText: { ...Typography.h3, color: Colors.textPrimary },
+  emptySub: { ...Typography.caption, color: Colors.textMuted, marginTop: Spacing.sm },
 });

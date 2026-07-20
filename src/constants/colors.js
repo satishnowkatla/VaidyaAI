@@ -1,62 +1,88 @@
 const Colors = {
-  // ─── Primary ───────────────────────────────────────────
+  gradient: {
+    primary: ["#0D47A1", "#1565C0", "#1E88E5"],
+    hero: ["#0D47A1", "#1976D2"],
+    accent: ["#00897B", "#26A69A"],
+    warm: ["#E65100", "#FF8F00"],
+    purple: ["#4A148C", "#7B1FA2"],
+    success: ["#1B5E20", "#43A047"],
+    danger: ["#B71C1C", "#E53935"],
+    scan: ["#0D47A1", "#00897B"],
+  },
+
   primary: "#1565C0",
-  primaryLight: "#BBDEFB",
-  primaryDark: "#1E88E5",
-  primaryBg: "#E8F0FE",
+  primaryDark: "#0D47A1",
+  primaryLight: "#42A5F5",
+  primarySoft: "#90CAF9",
+  primaryBg: "#E3F2FD",
+  primaryBgDeep: "#BBDEFB",
 
-  // ─── Background ────────────────────────────────────────
-  background: "#F4F7FC",
-  surface: "#fff",
-  overlay: "rgba(0,0,0,0.6)",
-  overlayMedium: "rgba(0,0,0,0.5)",
-  overlayLight: "rgba(0,0,0,0.4)",
-  darkBg: "#0a1628",
-  screenBlack: "#000",
+  accent: "#00897B",
+  accentLight: "#4DB6AC",
+  accentBg: "#E0F2F1",
 
-  // White variants (used on dark backgrounds)
-  white: "#fff",
-  whiteMuted: "rgba(255,255,255,0.7)",
+  background: "#F5F7FA",
+  surface: "#FFFFFF",
+  surfaceElevated: "#FFFFFF",
+
+  overlay: "rgba(0,0,0,0.55)",
+  overlayMedium: "rgba(0,0,0,0.45)",
+  overlayLight: "rgba(0,0,0,0.35)",
+  darkBg: "#0A1628",
+  screenBlack: "#000000",
+
+  white: "#FFFFFF",
+  whiteMuted: "rgba(255,255,255,0.75)",
   whiteDim: "rgba(255,255,255,0.6)",
   whiteFaint: "rgba(255,255,255,0.5)",
-  whiteGhost: "rgba(255,255,255,0.4)",
+  whiteGhost: "rgba(255,255,255,0.35)",
   whiteTransparent: "rgba(255,255,255,0.2)",
   whiteBtnBg: "rgba(255,255,255,0.15)",
-  whiteFrost: "rgba(255,255,255,0.1)",
+  whiteFrost: "rgba(255,255,255,0.08)",
 
-  // ─── Text ──────────────────────────────────────────────
-  textDark: "#0D1B2A",
-  textMedium: "#4A5568",
-  textMuted: "#9AA5B4",
+  textPrimary: "#0A1628",
+  textSecondary: "#37474F",
+  textMedium: "#546E7A",
+  textMuted: "#90A4AE",
+  textDark: "#0A1628",
 
-  // ─── Border / Divider ──────────────────────────────────
-  border: "#E8EDF5",
+  border: "#EDF2F7",
+  borderLight: "#F0F4F8",
+  divider: "#E8EDF5",
 
-  // ─── Tags ──────────────────────────────────────────────
   tagGreenBg: "#E8F5E9",
   tagGreenText: "#2E7D32",
+  tagGreenBorder: "#A5D6A7",
   tagOrangeBg: "#FFF3E0",
   tagOrangeText: "#E65100",
-  tagOrangeBorder: "#E65100",
+  tagOrangeBorder: "#FFCC80",
   tagOrangeSubtext: "#BF6000",
   tagRedBg: "#FFEBEE",
   tagRedText: "#C62828",
-  tagRedBorder: "#C62828",
+  tagRedBorder: "#EF9A9A",
+  tagBlueBg: "#E3F2FD",
+  tagBlueText: "#1565C0",
+  tagPurpleBg: "#F3E5F5",
+  tagPurpleText: "#6A1B9A",
 
-  // ─── Status ────────────────────────────────────────────
   successBg: "#E8F5E9",
   successText: "#2E7D32",
   warningBg: "#FFF3E0",
   warningText: "#E65100",
   errorBg: "#FFEBEE",
   errorText: "#C62828",
+  infoBg: "#E3F2FD",
+  infoText: "#1565C0",
 
-  // ─── Misc ──────────────────────────────────────────────
   torchActive: "#FFF9C4",
-  switchTrackOff: "#E8EDF5",
-  switchTrackOn: "#BBDEFB",
+  switchTrackOff: "#CFD8DC",
+  switchTrackOn: "#90CAF9",
   switchThumbOn: "#1565C0",
-  switchThumbOff: "#9AA5B4",
+  switchThumbOff: "#90A4AE",
+
+  tabBg: "#FFFFFF",
+  tabActive: "#1565C0",
+  tabInactive: "#B0BEC5",
 };
 
 export default Colors;

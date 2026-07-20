@@ -1,7 +1,10 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Platform, Text } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 import HomeScreen from "../screens/HomeScreen";
 import LibraryScreen from "../screens/LibraryScreen";
@@ -12,94 +15,86 @@ import SettingsScreen from "../screens/SettingsScreen";
 import StoresScreen from "../screens/StoresScreen";
 
 import Colors from "../constants/colors";
+import { Radius, Shadow } from "../constants/spacing";
 import { useLanguage } from "../context/LanguageContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+const TAB_ICONS = {
+  Home: { focused: "home", unfocused: "home-outline" },
+  Scan: { focused: "camera", unfocused: "camera-outline" },
+  Library: { focused: "book", unfocused: "book-outline" },
+  Stores: { focused: "location", unfocused: "location-outline" },
+  Settings: { focused: "settings", unfocused: "settings-outline" },
+};
+
+const SCAN_TAB = false;
+
 function HomeTabs() {
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : 16;
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
-          borderTopWidth: 1,
-          height: Platform.OS === "android" ? 70 : 85,
-          paddingBottom: Platform.OS === "android" ? 10 : 25,
-          paddingTop: 6,
-          elevation: 8,
-          shadowColor: Colors.screenBlack,
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
+          backgroundColor: Colors.tabBg,
+          borderTopWidth: 0,
+          height: 64 + bottomPadding,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+          ...Shadow.lg,
         },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarActiveTintColor: Colors.tabActive,
+        tabBarInactiveTintColor: Colors.tabInactive,
         tabBarLabelStyle: {
-          fontSize: 9,
-          fontWeight: "700",
-          marginBottom: Platform.OS === "android" ? 4 : 0,
+          fontSize: 10,
+          fontWeight: "600",
+          marginTop: 2,
         },
+        tabBarShowLabel: true,
       }}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: t("home"),
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>🏠</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Scan"
-        component={ScanScreen}
-        options={{
-          tabBarLabel: t("scan"),
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>📷</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Library"
-        component={LibraryScreen}
-        options={{
-          tabBarLabel: t("library"),
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>📚</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Stores"
-        component={StoresScreen}
-        options={{
-          tabBarLabel: t("stores"),
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>📍</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          tabBarLabel: t("settings"),
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>⚙️</Text>
-          ),
-        }}
-      />
+      {Object.entries(TAB_ICONS).map(([name, icons]) => (
+        <Tab.Screen
+          key={name}
+          name={name}
+          component={
+            name === "Home" ? HomeScreen :
+            name === "Scan" ? ScanScreen :
+            name === "Library" ? LibraryScreen :
+            name === "Stores" ? StoresScreen :
+            SettingsScreen
+          }
+          options={{
+            tabBarLabel: t(name.toLowerCase()),
+            tabBarIcon: ({ color, focused }) => {
+              if (name === "Scan") {
+                return (
+                  <View style={styles.scanTabIcon}>
+                    <LinearGradient
+                      colors={Colors.gradient.scan}
+                      style={styles.scanTabGrad}
+                    >
+                      <Ionicons name="camera" size={22} color={Colors.white} />
+                    </LinearGradient>
+                  </View>
+                );
+              }
+              return (
+                <Ionicons
+                  name={focused ? icons.focused : icons.unfocused}
+                  size={22}
+                  color={color}
+                />
+              );
+            },
+          }}
+        />
+      ))}
     </Tab.Navigator>
   );
 }
@@ -111,7 +106,7 @@ export default function AppNavigator() {
         headerShown: true,
         headerStyle: { backgroundColor: Colors.surface },
         headerTintColor: Colors.primary,
-        headerTitleStyle: { fontWeight: "800", fontSize: 16, color: Colors.textDark },
+        headerTitleStyle: { fontWeight: "800", fontSize: 16, color: Colors.textPrimary },
         headerBackTitle: "Back",
         headerShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",
@@ -135,3 +130,17 @@ export default function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  scanTabIcon: {
+    marginTop: -22,
+  },
+  scanTabGrad: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: "center",
+    justifyContent: "center",
+    ...Shadow.colored(Colors.primary),
+  },
+});

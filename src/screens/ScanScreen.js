@@ -1,9 +1,12 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   Platform,
   StatusBar,
   StyleSheet,
@@ -13,6 +16,8 @@ import {
 } from "react-native";
 import Colors from "../constants/colors";
 import { SCAN_CONFIG } from "../constants/config";
+import { Radius, Shadow, Spacing } from "../constants/spacing";
+import { Typography } from "../constants/typography";
 import { useLanguage } from "../context/LanguageContext";
 import {
   scanMedicineImage,
@@ -26,6 +31,26 @@ export default function ScanScreen({ navigation }) {
   const [facing, setFacing] = useState("back");
   const [loading, setLoading] = useState(false);
   const cameraRef = useRef(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (loading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.15,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [loading]);
 
   const captureAndScan = async () => {
     if (!cameraRef.current) return;
@@ -70,7 +95,7 @@ export default function ScanScreen({ navigation }) {
         Alert.alert(
           "Not Detected",
           "Could not read the medicine name. Please try again with better lighting and hold the camera steady.",
-          [{ text: "OK" }],
+          [{ text: "OK" }]
         );
         return;
       }
@@ -86,7 +111,7 @@ export default function ScanScreen({ navigation }) {
   if (!permission) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={Colors.primaryLight} />
       </View>
     );
   }
@@ -94,20 +119,40 @@ export default function ScanScreen({ navigation }) {
   if (!permission.granted) {
     return (
       <View style={styles.permContainer}>
-        <Text style={styles.permIcon}>📷</Text>
-        <Text style={styles.permTitle}>Camera Permission Needed</Text>
-        <Text style={styles.permSub}>
-          We need camera access to scan medicine strips
-        </Text>
-        <TouchableOpacity style={styles.permBtn} onPress={requestPermission}>
-          <Text style={styles.permBtnText}>Allow Camera Access</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.skipBtn}
-          onPress={() => navigation.goBack()}
+        <LinearGradient
+          colors={Colors.gradient.hero}
+          style={styles.permGradient}
         >
-          <Text style={styles.skipBtnText}>Go Back</Text>
-        </TouchableOpacity>
+          <View style={styles.permIconCircle}>
+            <Ionicons name="camera" size={40} color={Colors.white} />
+          </View>
+          <Text style={styles.permTitle}>Camera Permission Needed</Text>
+          <Text style={styles.permSub}>
+            We need camera access to scan medicine strips and identify them
+            instantly
+          </Text>
+          <TouchableOpacity
+            style={styles.permBtn}
+            onPress={requestPermission}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={Colors.gradient.accent}
+              style={styles.permBtnGrad}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+              <Text style={styles.permBtnText}>Allow Camera Access</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.skipBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.skipBtnText}>Go Back</Text>
+          </TouchableOpacity>
+        </LinearGradient>
       </View>
     );
   }
@@ -121,59 +166,81 @@ export default function ScanScreen({ navigation }) {
           enableTorch={torch}
           ref={cameraRef}
         />
-        <View style={styles.overlayContainer}>
-          <View style={styles.overlayTop}>
+        <View style={styles.overlay}>
+          {/* ── Top Bar ── */}
+          <LinearGradient
+            colors={["rgba(0,0,0,0.6)", "transparent"]}
+            style={styles.topGradient}
+          >
             <View style={styles.scanHeader}>
               <TouchableOpacity
                 style={styles.iconBtn}
                 onPress={() => navigation.goBack()}
+                activeOpacity={0.7}
               >
-                <Text style={styles.iconBtnText}>←</Text>
+                <Ionicons name="arrow-back" size={20} color={Colors.white} />
               </TouchableOpacity>
               <Text style={styles.scanTitle}>{t("scan")}</Text>
               <TouchableOpacity
                 style={styles.iconBtn}
                 onPress={() => setTorch(!torch)}
+                activeOpacity={0.7}
               >
-                <Text style={styles.iconBtnText}>{torch ? "⚡" : "🔦"}</Text>
+                <Ionicons
+                  name={torch ? "flash" : "flash-outline"}
+                  size={20}
+                  color={Colors.white}
+                />
               </TouchableOpacity>
             </View>
-          </View>
+          </LinearGradient>
 
+          {/* ── Scan Frame ── */}
           <View style={styles.frameArea}>
-            <View style={styles.sideDark} />
             <View style={styles.frameBox}>
               <View style={[styles.corner, styles.cornerTL]} />
               <View style={[styles.corner, styles.cornerTR]} />
               <View style={[styles.corner, styles.cornerBL]} />
               <View style={[styles.corner, styles.cornerBR]} />
             </View>
-            <View style={styles.sideDark} />
           </View>
 
+          {/* ── Tip Pill ── */}
           <View style={styles.tipRow}>
-            <Text style={styles.frameTip}>
-              Place medicine strip inside the frame
-            </Text>
+            <View style={styles.tipPill}>
+              <Ionicons name="information-circle" size={14} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.tipText}>
+                Place medicine strip inside the frame
+              </Text>
+            </View>
           </View>
 
+          {/* ── Flip Button ── */}
           <View style={styles.flipRow}>
             <TouchableOpacity
               style={styles.flipBtn}
               onPress={() => setFacing(facing === "back" ? "front" : "back")}
+              activeOpacity={0.7}
             >
-              <Text style={styles.flipBtnText}>🔄 Flip Camera</Text>
+              <Ionicons name="camera-reverse" size={18} color={Colors.white} />
+              <Text style={styles.flipBtnText}>Flip Camera</Text>
             </TouchableOpacity>
           </View>
-
-          <View style={styles.overlayBottom} />
         </View>
       </View>
 
+      {/* ── Bottom Panel ── */}
       <View style={styles.bottomPanel}>
         {loading ? (
           <View style={styles.loadingBox}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <Animated.View
+              style={[
+                styles.loadingCircle,
+                { transform: [{ scale: pulseAnim }] },
+              ]}
+            >
+              <Ionicons name="scan" size={32} color={Colors.primary} />
+            </Animated.View>
             <Text style={styles.loadingMsg}>Scanning medicine...</Text>
             <Text style={styles.loadingSubMsg}>
               Reading text from image using AI
@@ -191,9 +258,13 @@ export default function ScanScreen({ navigation }) {
             </View>
 
             <View style={styles.btnRow}>
-              <TouchableOpacity style={styles.sideBtn} onPress={pickImage}>
-                <View style={styles.sideBtnIc}>
-                  <Text style={{ fontSize: 22 }}>🖼️</Text>
+              <TouchableOpacity
+                style={styles.sideBtn}
+                onPress={pickImage}
+                activeOpacity={0.7}
+              >
+                <View style={styles.sideBtnIcon}>
+                  <Ionicons name="images" size={22} color={Colors.primary} />
                 </View>
                 <Text style={styles.sideBtnTxt}>Gallery</Text>
               </TouchableOpacity>
@@ -201,21 +272,32 @@ export default function ScanScreen({ navigation }) {
               <TouchableOpacity
                 style={styles.captureBtn}
                 onPress={captureAndScan}
+                activeOpacity={0.8}
               >
-                <Text style={{ fontSize: 28 }}>📷</Text>
+                <LinearGradient
+                  colors={Colors.gradient.scan}
+                  style={styles.captureGrad}
+                >
+                  <Ionicons name="camera" size={28} color={Colors.white} />
+                </LinearGradient>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.sideBtn}
                 onPress={() => setTorch(!torch)}
+                activeOpacity={0.7}
               >
                 <View
                   style={[
-                    styles.sideBtnIc,
-                    torch && { backgroundColor: Colors.torchActive },
+                    styles.sideBtnIcon,
+                    torch && styles.sideBtnIconActive,
                   ]}
                 >
-                  <Text style={{ fontSize: 22 }}>{torch ? "⚡" : "🔦"}</Text>
+                  <Ionicons
+                    name={torch ? "flash" : "flash-outline"}
+                    size={22}
+                    color={torch ? Colors.white : Colors.primary}
+                  />
                 </View>
                 <Text style={styles.sideBtnTxt}>
                   {torch ? "Flash On" : "Flash"}
@@ -237,173 +319,191 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  camera: { flex: 1, backgroundColor: Colors.screenBlack },
+  camera: { flex: 1 },
   cameraWrapper: { flex: 1 },
-  overlayContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  overlayTop: {
-    backgroundColor: Colors.overlay,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 44,
+  overlay: { ...StyleSheet.absoluteFillObject },
+  topGradient: {
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : Spacing.xxxxl,
+    paddingBottom: Spacing.xl,
   },
   scanHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.lg,
   },
   iconBtn: {
     width: 40,
     height: 40,
-    borderRadius: 13,
-    backgroundColor: Colors.whiteBtnBg,
+    borderRadius: Radius.md,
+    backgroundColor: "rgba(255,255,255,0.15)",
     alignItems: "center",
     justifyContent: "center",
   },
-  iconBtnText: { fontSize: 18, color: Colors.white },
-  scanTitle: { fontSize: 16, fontWeight: "800", color: Colors.white },
+  scanTitle: { ...Typography.h3, color: Colors.white },
+
   frameArea: {
-    flexDirection: "row",
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 30,
   },
-  sideDark: { flex: 1, height: 180, backgroundColor: Colors.overlayMedium },
-  frameBox: { width: 240, height: 180, position: "relative" },
+  frameBox: {
+    width: 260,
+    height: 180,
+    position: "relative",
+  },
   corner: {
     position: "absolute",
-    width: 28,
-    height: 28,
-    borderColor: Colors.primaryDark,
+    width: 30,
+    height: 30,
+    borderColor: Colors.primaryLight,
     borderStyle: "solid",
   },
   cornerTL: {
-    top: 0,
-    left: 0,
-    borderTopWidth: 3,
-    borderLeftWidth: 3,
-    borderTopLeftRadius: 5,
+    top: 0, left: 0,
+    borderTopWidth: 3, borderLeftWidth: 3,
+    borderTopLeftRadius: 6,
   },
   cornerTR: {
-    top: 0,
-    right: 0,
-    borderTopWidth: 3,
-    borderRightWidth: 3,
-    borderTopRightRadius: 5,
+    top: 0, right: 0,
+    borderTopWidth: 3, borderRightWidth: 3,
+    borderTopRightRadius: 6,
   },
   cornerBL: {
-    bottom: 0,
-    left: 0,
-    borderBottomWidth: 3,
-    borderLeftWidth: 3,
-    borderBottomLeftRadius: 5,
+    bottom: 0, left: 0,
+    borderBottomWidth: 3, borderLeftWidth: 3,
+    borderBottomLeftRadius: 6,
   },
   cornerBR: {
-    bottom: 0,
-    right: 0,
-    borderBottomWidth: 3,
-    borderRightWidth: 3,
-    borderBottomRightRadius: 5,
+    bottom: 0, right: 0,
+    borderBottomWidth: 3, borderRightWidth: 3,
+    borderBottomRightRadius: 6,
   },
-  tipRow: {
-    backgroundColor: Colors.overlayMedium,
+
+  tipRow: { alignItems: "center", paddingVertical: Spacing.md },
+  tipPill: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-  },
-  frameTip: {
-    color: Colors.whiteMuted,
-    fontSize: 12,
-    backgroundColor: Colors.overlayLight,
+    gap: 6,
+    backgroundColor: "rgba(0,0,0,0.45)",
     paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
   },
-  flipRow: {
-    alignItems: "center",
-    paddingVertical: 10,
-    backgroundColor: Colors.overlayLight,
-  },
+  tipText: { color: "rgba(255,255,255,0.8)", fontSize: 12, fontWeight: "600" },
+
+  flipRow: { alignItems: "center", paddingBottom: Spacing.lg },
   flipBtn: {
-    backgroundColor: Colors.whiteBtnBg,
-    borderRadius: 20,
-    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: Radius.pill,
+    paddingHorizontal: 18,
     paddingVertical: 8,
   },
-  flipBtnText: { color: Colors.white, fontSize: 13, fontWeight: "700" },
-  overlayBottom: { flex: 1, backgroundColor: Colors.overlayMedium },
+  flipBtnText: { color: Colors.white, fontSize: 12, fontWeight: "700" },
+
   bottomPanel: {
     backgroundColor: Colors.surface,
-    paddingHorizontal: 22,
-    paddingTop: 18,
-    paddingBottom: 90,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.xl,
+    paddingBottom: 100,
+    borderTopLeftRadius: Radius.xxl,
+    borderTopRightRadius: Radius.xxl,
+    ...Shadow.lg,
   },
-  loadingBox: { alignItems: "center", paddingVertical: 20 },
-  loadingMsg: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: Colors.primary,
-    marginTop: 14,
+  loadingBox: { alignItems: "center", paddingVertical: Spacing.xl },
+  loadingCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.primaryBg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.md,
   },
-  loadingSubMsg: { fontSize: 12, color: Colors.textMuted, marginTop: 6 },
-  instructions: { alignItems: "center", marginBottom: 20 },
-  instrTitle: { fontSize: 13, fontWeight: "600", color: Colors.textDark },
-  instrSub: { fontSize: 11, color: Colors.textMuted, marginTop: 3 },
+  loadingMsg: { ...Typography.h3, color: Colors.primary, marginTop: Spacing.sm },
+  loadingSubMsg: { ...Typography.caption, color: Colors.textMuted, marginTop: Spacing.xs },
+
+  instructions: { alignItems: "center", marginBottom: Spacing.xl },
+  instrTitle: { ...Typography.captionBold, color: Colors.textPrimary },
+  instrSub: { ...Typography.caption, color: Colors.textMuted, marginTop: 3 },
+
   btnRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 36,
+    gap: Spacing.xxxl,
   },
   sideBtn: { alignItems: "center", gap: 5 },
-  sideBtnIc: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
-    backgroundColor: Colors.background,
+  sideBtnIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.primaryBg,
     alignItems: "center",
     justifyContent: "center",
   },
-  sideBtnTxt: { fontSize: 10, color: Colors.textMuted, fontWeight: "600" },
-  captureBtn: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+  sideBtnIconActive: {
     backgroundColor: Colors.primary,
-    borderWidth: 5,
-    borderColor: Colors.primaryLight,
+  },
+  sideBtnTxt: { ...Typography.micro, color: Colors.textMuted },
+
+  captureBtn: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    ...Shadow.xl,
+  },
+  captureGrad: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: Colors.white,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 8,
   },
-  permContainer: {
+
+  permContainer: { flex: 1 },
+  permGradient: {
     flex: 1,
-    backgroundColor: Colors.darkBg,
     alignItems: "center",
     justifyContent: "center",
-    padding: 30,
+    paddingHorizontal: Spacing.xxxl,
   },
-  permIcon: { fontSize: 60, marginBottom: 20 },
+  permIconCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.xxl,
+  },
   permTitle: {
-    fontSize: 20,
-    fontWeight: "800",
+    ...Typography.h1,
     color: Colors.white,
     textAlign: "center",
   },
   permSub: {
-    fontSize: 13,
+    ...Typography.body,
     color: Colors.whiteDim,
     textAlign: "center",
-    marginTop: 10,
-    lineHeight: 20,
+    marginTop: Spacing.md,
+    lineHeight: 22,
   },
-  permBtn: {
-    backgroundColor: Colors.primary,
-    borderRadius: 15,
-    padding: 14,
-    marginTop: 30,
-    width: "100%",
+  permBtn: { marginTop: Spacing.xxxl, width: "100%" },
+  permBtnGrad: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: Radius.lg,
+    paddingVertical: 14,
   },
-  permBtnText: { fontSize: 14, fontWeight: "800", color: Colors.white },
-  skipBtn: { marginTop: 14, padding: 10 },
-  skipBtnText: { fontSize: 13, color: Colors.whiteFaint },
+  permBtnText: { ...Typography.button, color: Colors.white },
+  skipBtn: { marginTop: Spacing.lg, padding: Spacing.sm },
+  skipBtnText: { ...Typography.body, color: Colors.whiteFaint, textAlign: "center" },
 });

@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
   Platform,
@@ -10,9 +12,24 @@ import {
   View,
 } from "react-native";
 import Colors from "../constants/colors";
+import { Radius, Shadow, Spacing } from "../constants/spacing";
+import { Typography } from "../constants/typography";
 import { useLanguage } from "../context/LanguageContext";
 
-const teluguTranslations = {
+const T = {
+  uses: "Uses",
+  dosage: "Dosage",
+  sideEffects: "Side Effects",
+  warnings: "Warnings",
+  category: "Category",
+  safe: "Safe",
+  details: "Medicine Details",
+  match: "AI Match",
+  stores: "Find Nearby Medical Stores",
+  scanAgain: "Scan Another Medicine",
+};
+
+const T_TE = {
   uses: "ఉపయోగాలు",
   dosage: "మోతాదు",
   sideEffects: "దుష్ప్రభావాలు",
@@ -20,15 +37,22 @@ const teluguTranslations = {
   category: "వర్గం",
   safe: "సురక్షితం",
   details: "మందు వివరాలు",
-  stores: "దగ్గరలో మెడికల్ షాపులు",
-  noAlcohol: "మద్యంతో తీసుకోవద్దు",
-  liver: "కాలేయ సమస్యలు ఉంటే వాడవద్దు",
   match: "సరిపోలిక",
+  stores: "దగ్గరలో మెడికల్ షాపులు",
+  scanAgain: "మళ్ళీ స్కాన్ చేయండి",
 };
+
+const sections = [
+  { key: "uses", icon: "medkit", gradient: Colors.gradient.primary },
+  { key: "dosage", icon: "timer", gradient: Colors.gradient.accent },
+  { key: "sideEffects", icon: "warning", gradient: Colors.gradient.warm },
+  { key: "category", icon: "folder", gradient: Colors.gradient.purple },
+];
 
 export default function ResultScreen({ navigation, route }) {
   const { lang } = useLanguage();
   const isTE = lang === "te";
+  const tr = isTE ? T_TE : T;
 
   const medicine = route?.params?.medicine || {
     name: "Paracetamol 500mg",
@@ -44,280 +68,297 @@ export default function ResultScreen({ navigation, route }) {
       await Share.share({
         message: `Medicine: ${medicine.name}\nCategory: ${medicine.category}\nUses: ${medicine.uses}\nDosage: ${medicine.dosage}\nSide Effects: ${medicine.sideEffects}\nWarnings: ${medicine.warnings}\n\nShared from VaidyaAI`,
       });
-    } catch (_error) {
-      // share cancelled
-    }
+    } catch (_) {}
   };
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerTitle}>
-          <Text style={styles.headerText}>
-            {isTE ? teluguTranslations.details : "Medicine Details"}
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
-          <Text style={styles.shareIcon}>↗</Text>
-        </TouchableOpacity>
-      </View>
+      <StatusBar barStyle="light-content" />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.pad}>
-          {/* MEDICINE TOP CARD */}
-          <View style={styles.topCard}>
-            <View style={styles.medIcon}>
-              <Text style={{ fontSize: 28 }}>💊</Text>
+      {/* ── Gradient Header ── */}
+      <LinearGradient
+        colors={Colors.gradient.hero}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <View style={styles.headerRow}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={20} color={Colors.white} />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>{tr.details}</Text>
+          <TouchableOpacity
+            style={styles.shareBtn}
+            onPress={handleShare}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="share-social" size={18} color={Colors.white} />
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      >
+        {/* ── Medicine Card ── */}
+        <View style={styles.medCard}>
+          <View style={styles.medTop}>
+            <View style={styles.medIconWrap}>
+              <Ionicons name="medical" size={28} color={Colors.primary} />
             </View>
             <View style={styles.medInfo}>
               <Text style={styles.medName}>{medicine.name}</Text>
-              <Text style={styles.medSub}>
-                {isTE ? teluguTranslations.category : "Category"}:{" "}
-                {medicine.category}
-              </Text>
-              <View style={styles.tagRow}>
-                <View style={styles.tagGreen}>
-                  <Text style={styles.tagGreenText}>
-                    ✓ {isTE ? teluguTranslations.safe : "Safe"}
-                  </Text>
-                </View>
-                <View style={styles.tagBlue}>
-                  <Text style={styles.tagBlueText}>
-                    AI {isTE ? teluguTranslations.match : "Match"}
-                  </Text>
-                </View>
-              </View>
+              <Text style={styles.medCat}>{tr.category}: {medicine.category}</Text>
             </View>
           </View>
-
-          {/* INFO GRID */}
-          <View style={styles.infoGrid}>
-            <View style={styles.infoCard}>
-              <Text style={styles.infoLabel}>
-                {isTE ? teluguTranslations.uses : "Uses"}
-              </Text>
-              <Text style={styles.infoVal}>{medicine.uses}</Text>
+          <View style={styles.tagRow}>
+            <View style={styles.safeTag}>
+              <Ionicons name="checkmark-circle" size={14} color={Colors.tagGreenText} />
+              <Text style={styles.safeText}>✓ {tr.safe}</Text>
             </View>
-            <View style={styles.infoCard}>
-              <Text style={styles.infoLabel}>
-                {isTE ? teluguTranslations.dosage : "Dosage"}
-              </Text>
-              <Text style={styles.infoVal}>{medicine.dosage}</Text>
-            </View>
-            <View style={styles.infoCard}>
-              <Text style={styles.infoLabel}>
-                {isTE ? teluguTranslations.sideEffects : "Side Effects"}
-              </Text>
-              <Text style={styles.infoVal}>{medicine.sideEffects}</Text>
-            </View>
-            <View style={styles.infoCard}>
-              <Text style={styles.infoLabel}>
-                {isTE ? teluguTranslations.category : "Category"}
-              </Text>
-              <Text style={styles.infoVal}>{medicine.category}</Text>
+            <View style={styles.aiTag}>
+              <Ionicons name="sparkles" size={12} color={Colors.primary} />
+              <Text style={styles.aiText}>{tr.match}</Text>
             </View>
           </View>
-
-          {/* WARNING BOX */}
-          <View style={styles.warnBox}>
-            <Text style={styles.warnIcon}>⚠️</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.warnText}>
-                {isTE ? teluguTranslations.warnings : "Warnings"}
-              </Text>
-              <Text style={styles.warnSub}>{medicine.warnings}</Text>
-            </View>
-          </View>
-
-          {/* DANGER BOX */}
-          <View style={styles.dangerBox}>
-            <Text style={styles.dangerIcon}>🚫</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.dangerText}>
-                {isTE
-                  ? "ఇది వైద్య సలహాకు ప్రత్యామ్నాయం కాదు"
-                  : "Not a substitute for professional medical advice"}
-              </Text>
-            </View>
-          </View>
-
-          {/* SCAN AGAIN BUTTON */}
-          <TouchableOpacity
-            style={styles.scanAgainBtn}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.scanAgainIcon}>📷</Text>
-            <Text style={styles.scanAgainText}>
-              {isTE ? "మళ్ళీ స్కాన్ చేయండి" : "Scan Another Medicine"}
-            </Text>
-          </TouchableOpacity>
-
-          {/* FIND STORES BUTTON */}
-          <TouchableOpacity
-            style={styles.storesBtn}
-            onPress={() =>
-              navigation.navigate("Main", {
-                screen: "Stores",
-              })
-            }
-          >
-            <Text style={styles.storesBtnIcon}>📍</Text>
-            <Text style={styles.storesBtnText}>
-              {isTE ? teluguTranslations.stores : "Find Nearby Medical Stores"}
-            </Text>
-          </TouchableOpacity>
         </View>
+
+        {/* ── Info Sections ── */}
+        {sections.map((s) => (
+          <View key={s.key} style={styles.sectionCard}>
+            <View style={styles.sectionLeft}>
+              <LinearGradient
+                colors={s.gradient}
+                style={styles.sectionIconWrap}
+              >
+                <Ionicons name={s.icon} size={18} color={Colors.white} />
+              </LinearGradient>
+            </View>
+            <View style={styles.sectionContent}>
+              <Text style={styles.sectionLabel}>{tr[s.key]}</Text>
+              <Text style={styles.sectionValue}>{medicine[s.key]}</Text>
+            </View>
+          </View>
+        ))}
+
+        {/* ── Warning Box ── */}
+        <View style={styles.warnBox}>
+          <View style={styles.warnIconWrap}>
+            <Ionicons name="warning" size={20} color={Colors.warningText} />
+          </View>
+          <View style={styles.warnContent}>
+            <Text style={styles.warnTitle}>{tr.warnings}</Text>
+            <Text style={styles.warnText}>{medicine.warnings}</Text>
+          </View>
+        </View>
+
+        {/* ── Danger Box ── */}
+        <View style={styles.dangerBox}>
+          <Ionicons name="shield-checkmark" size={18} color={Colors.tagRedText} />
+          <Text style={styles.dangerText}>
+            {isTE
+              ? "ఇది వైద్య సలహాకు ప్రత్యామ్నాయం కాదు"
+              : "Not a substitute for professional medical advice"}
+          </Text>
+        </View>
+
+        {/* ── Action Buttons ── */}
+        <TouchableOpacity
+          style={styles.scanBtn}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="camera" size={18} color={Colors.primary} />
+          <Text style={styles.scanBtnText}>{tr.scanAgain}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.storesBtn}
+          onPress={() => navigation.navigate("Main", { screen: "Stores" })}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={Colors.gradient.primary}
+            style={styles.storesBtnGrad}
+          >
+            <Ionicons name="location" size={18} color={Colors.white} />
+            <Text style={styles.storesBtnText}>{tr.stores}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <View style={{ height: Spacing.xxl }} />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 44,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + Spacing.md : Spacing.xxxxl,
+    paddingBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
+  headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: 10,
+    gap: Spacing.md,
   },
   backBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 11,
-    backgroundColor: Colors.primaryBg,
+    width: 38,
+    height: 38,
+    borderRadius: Radius.md,
+    backgroundColor: "rgba(255,255,255,0.15)",
     alignItems: "center",
     justifyContent: "center",
   },
-  backIcon: { fontSize: 18, color: Colors.primary, fontWeight: "700" },
-  headerTitle: { flex: 1 },
-  headerText: { fontSize: 15, fontWeight: "800", color: Colors.textDark },
+  headerText: { flex: 1, ...Typography.h3, color: Colors.white },
   shareBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 11,
-    backgroundColor: Colors.primaryBg,
+    width: 38,
+    height: 38,
+    borderRadius: Radius.md,
+    backgroundColor: "rgba(255,255,255,0.15)",
     alignItems: "center",
     justifyContent: "center",
   },
-  shareIcon: { fontSize: 16, color: Colors.primary, fontWeight: "700" },
-  pad: { padding: 14 },
-  topCard: {
+
+  scroll: { padding: Spacing.lg },
+
+  medCard: {
     backgroundColor: Colors.surface,
-    borderRadius: 20,
-    padding: 14,
-    flexDirection: "row",
-    gap: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderRadius: Radius.xl,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadow.md,
   },
-  medIcon: {
+  medTop: {
+    flexDirection: "row",
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  medIconWrap: {
     width: 54,
     height: 54,
+    borderRadius: Radius.lg,
     backgroundColor: Colors.primaryBg,
-    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
-  medInfo: { flex: 1 },
-  medName: { fontSize: 16, fontWeight: "800", color: Colors.textDark },
-  medSub: { fontSize: 12, color: Colors.textMedium, marginTop: 2 },
-  tagRow: { flexDirection: "row", gap: 6, marginTop: 7, flexWrap: "wrap" },
-  tagGreen: {
-    backgroundColor: Colors.tagGreenBg,
-    borderRadius: 8,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
-  },
-  tagGreenText: { fontSize: 10, fontWeight: "700", color: Colors.tagGreenText },
-  tagBlue: {
-    backgroundColor: Colors.primaryBg,
-    borderRadius: 8,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
-  },
-  tagBlueText: { fontSize: 10, fontWeight: "700", color: Colors.primary },
-  infoGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 10 },
-  infoCard: {
-    width: "48%",
-    backgroundColor: Colors.surface,
-    borderRadius: 15,
-    padding: 11,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  infoLabel: { fontSize: 10, color: Colors.textMuted, fontWeight: "600" },
-  infoVal: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: Colors.textDark,
-    marginTop: 3,
-    lineHeight: 18,
-  },
-  warnBox: {
-    backgroundColor: Colors.tagOrangeBg,
-    borderRadius: 14,
-    padding: 12,
-    marginTop: 10,
+  medInfo: { flex: 1, justifyContent: "center" },
+  medName: { ...Typography.h2, color: Colors.textPrimary },
+  medCat: { ...Typography.caption, color: Colors.textMedium, marginTop: 3 },
+  tagRow: { flexDirection: "row", gap: Spacing.sm },
+  safeTag: {
     flexDirection: "row",
-    gap: 9,
-    alignItems: "flex-start",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: Colors.tagGreenBg,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+  },
+  safeText: { ...Typography.microBold, color: Colors.tagGreenText },
+  aiTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: Colors.primaryBg,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+  },
+  aiText: { ...Typography.microBold, color: Colors.primary },
+
+  sectionCard: {
+    flexDirection: "row",
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    gap: Spacing.md,
+    ...Shadow.sm,
+  },
+  sectionLeft: { paddingTop: 2 },
+  sectionIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionContent: { flex: 1 },
+  sectionLabel: { ...Typography.micro, color: Colors.textMuted, marginBottom: 3 },
+  sectionValue: { ...Typography.bodyBold, color: Colors.textPrimary, lineHeight: 20 },
+
+  warnBox: {
+    flexDirection: "row",
+    backgroundColor: Colors.tagOrangeBg,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
+    gap: Spacing.md,
     borderLeftWidth: 3,
     borderLeftColor: Colors.tagOrangeText,
   },
-  warnIcon: { fontSize: 16 },
-  warnText: { fontSize: 12, fontWeight: "700", color: Colors.tagOrangeText },
-  warnSub: { fontSize: 10, color: Colors.tagOrangeSubtext, marginTop: 2, lineHeight: 16 },
+  warnIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: Radius.sm,
+    backgroundColor: "rgba(230,81,0,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  warnContent: { flex: 1 },
+  warnTitle: { ...Typography.captionBold, color: Colors.tagOrangeText },
+  warnText: {
+    ...Typography.caption,
+    color: Colors.tagOrangeSubtext,
+    marginTop: 3,
+    lineHeight: 18,
+  },
+
   dangerBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
     backgroundColor: Colors.tagRedBg,
-    borderRadius: 14,
-    padding: 12,
-    marginTop: 9,
-    flexDirection: "row",
-    gap: 9,
-    alignItems: "flex-start",
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.tagRedBorder,
+    borderLeftColor: Colors.tagRedText,
   },
-  dangerIcon: { fontSize: 16 },
-  dangerText: { fontSize: 12, fontWeight: "700", color: Colors.tagRedText },
-  scanAgainBtn: {
+  dangerText: { ...Typography.captionBold, color: Colors.tagRedText, flex: 1 },
+
+  scanBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     backgroundColor: Colors.primaryBg,
-    borderRadius: 15,
-    padding: 13,
-    marginTop: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
+    borderRadius: Radius.lg,
+    paddingVertical: 14,
+    marginTop: Spacing.lg,
   },
-  scanAgainIcon: { fontSize: 16 },
-  scanAgainText: { fontSize: 13, fontWeight: "800", color: Colors.primary },
+  scanBtnText: { ...Typography.button, color: Colors.primary },
+
   storesBtn: {
-    backgroundColor: Colors.primary,
-    borderRadius: 15,
-    padding: 14,
-    marginTop: 9,
-    marginBottom: 20,
+    marginTop: Spacing.sm,
+    borderRadius: Radius.lg,
+    overflow: "hidden",
+    ...Shadow.md,
+  },
+  storesBtnGrad: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    paddingVertical: 14,
   },
-  storesBtnIcon: { fontSize: 16 },
-  storesBtnText: { fontSize: 13, fontWeight: "800", color: Colors.white },
+  storesBtnText: { ...Typography.button, color: Colors.white },
 });
